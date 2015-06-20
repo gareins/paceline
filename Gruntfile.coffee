@@ -39,6 +39,13 @@ module.exports = (grunt) ->
             src: ['*.js']
             dest: 'build/data'
           }
+          {
+            expand: true
+            overwrite: true
+            cwd: '.'
+            src: 'node_modules'
+            dest: 'build/'
+          }
         ]
 
     coffee:

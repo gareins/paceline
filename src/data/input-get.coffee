@@ -16,9 +16,11 @@ _pl_chk_url = (url1) ->
   
   if url1 != url2
     return false
+
+  _pl_globals.hostname = url1
   true
 
-_pl_init_inputs = (url) ->
+_pl_init = (url) ->
   if !_pl_chk_url(url)
     return
     
@@ -35,7 +37,10 @@ _pl_init_inputs = (url) ->
   observer.observe target, config
 
   _pl_choose_input()
-  setInterval _pl_choose_input,500
+  interval = setInterval _pl_choose_input,300 #0.3 seconds check
+
+  _pl_globals.observer = observer
+  _pl_globals.interval = interval
   return
 
 _pl_body_change_listener = (mutations) ->
@@ -56,41 +61,45 @@ _pl_input_change_listener = (mutations) ->
   return
 
 _pl_choose_input = () ->
-  inpts_table = _pl_globals.inputs.map(->
-    t = $( this )
-    return [[
-      t.attr("type") == "password"
-      t.is(":visible")
-    ]]
-  ).get()
+  inputs = _pl_globals.inputs
+  unameIdx = -1
 
-  console.log inpts_table
+  for i in [0..inputs.length-2]
+    no1 = $(inputs[i])
+    no2 = $(inputs[i+1])
+    no3 = $(inputs[i+2])
 
-  _pl_globals.inputs.map () ->
-      el = ($ this)
-      if el.is(":visible")
-          el.css 'background-color', 'green'
-      else
-          el.css 'background-color', 'yellow'
-  
+    bool1 = (no1.attr("type") != 'password') && (no1.is(":visible"))
+    bool2 = (no2.attr("type") == 'password') && (no2.is(":visible"))
+    bool3 = (i+2 == inputs.length) || (no3.is ":hidden") || (no3.attr("type") != 'password')
 
-  #pass_idx = -1
-  #i = 0
-  #while i < inputs.length
-  #  #inputs.each(function(i, e) {
-  #  if $(inputs[i]).attr('type') == 'password'
-  #    pass_idx = i
-  #    break
-  #  i++
-  #  
-  #if pass_idx <= 0
-  #  return
-  #  
-  #$(inputs[pass_idx - 1]).css 'background-color', 'green'
-  #$(inputs[pass_idx]).css 'background-color', 'red'
+    if bool1 && bool2 && bool3
+      unameIdx = i
+      break
+
+  if unameIdx < 0
+    return
+
+  self.port.emit "username", no1.val(), _pl_globals.hostname
+  # recieve and fill password
   return
 
+#
+# globals
+# 
 _pl_globals = exports ? this
 _pl_globals.inputs = []
+_pl_globals.inputIdx = -1
+_pl_globals.interval = null
+_pl_globals.observer = null
+_pl_globals.hostname = null
 
-self.port.on 'getInput', _pl_init_inputs
+#
+# port listeners
+#
+self.port.on 'disable', () ->
+  _pl_globals.observer.disconnect()
+  clearInterval _pl_globals.interval
+  _pl_globals.inputs = []
+  
+self.port.on 'enable', _pl_init

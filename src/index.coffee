@@ -1,8 +1,9 @@
-re_self = require('sdk/self')
-re_tabs = require('sdk/tabs')
+re_self    = require('sdk/self')
+re_tabs    = require('sdk/tabs')
 re_pagemod = require('sdk/page-mod')
-re_action = require('sdk/ui/button/action')
-re_panel = require('sdk/panel')
+re_action  = require('sdk/ui/button/action')
+re_panel   = require('sdk/panel')
+re_crypto  = require('crypto-js')
 
 # Construct a panel, loading its content from the "text-entry.html"
 # file in the "data" directory, and loading the "get-text.js" script
@@ -41,7 +42,15 @@ text_entry.port.on 'text-entered', (text) ->
   console.log text
   text_entry.hide()
   return
-  
+
+_pl_get_pass = (uname, url, opts) ->
+  # for now, without option only for length, default 13
+  to_hash = uname + url + opts.password
+  console.log(to_hash)
+
+  pass = (re_crypto.SHA256 to_hash).substring(0,13)
+  return pass
+
 # on ready...
 re_pagemod.PageMod
   include: '*'
@@ -55,8 +64,10 @@ re_pagemod.PageMod
     re_self.data.url('input-get.js')
   ]
   onAttach: (worker) ->
-    worker.port.emit 'getInput', re_tabs.activeTab.url
-    worker.port.on 'gotInput', (returned) ->
-      console.log returned
+    worker.port.emit 'enable', re_tabs.activeTab.url
+
+    worker.port.on 'username', ((uname, url) ->
+      _pl_get_pass uname, url, {"password": "password"}
       return
+    )
     return
