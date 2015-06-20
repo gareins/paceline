@@ -1,0 +1,80 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head>
+
+  
+  <meta content="text/html; charset=ISO-8859-1" http-equiv="content-type"><title>PacelinePanel</title>
+  
+
+  
+  
+  <style type="text/css">
+h1 {
+  margin-top: 5px;
+  font-size: 20px;
+  margin-left: 4px;
+}
+body {
+  background-color: #19171a;
+  color: #a5a5a5;
+  text-align: justify;
+  margin-left: 10px;
+  font-size: 14px;
+}
+.checkbox {
+  font-size: 10px;
+}
+
+</style></head><body>
+<h1>Password</h1>
+
+<input minlength="100" name="password" type="password"> <br>
+
+<span class="checkbox">hidden</span> <input checked="checked" name="hidden" type="checkbox">
+<span class="checkbox">save password</span> <input checked="checked" name="save" type="checkbox"><br>
+
+<br>
+
+<h1>Settings</h1>
+
+mode
+<select>
+
+<optgroup label="Hash">
+<option value="md5">MD4</option>
+<option value="ripemd">RIPEMD-160</option>
+<option value="sha1">SHA1</option>
+<option value="sha256">SHA256</option>
+<option value="sha512">SHA512</option>
+<option value="sha3">SHA3</option>
+</optgroup>
+<optgroup label="Cipher">
+<option value="aescbc">AES/CBC</option>
+<option value="aesctr">AES/CBC</option>
+<option value="3descbc">3DES/CBC</option>
+<option value="3desctr">3DES/CTR</option>
+</optgroup>
+</select>
+
+<br>
+
+key<br>
+<input minlength="100" name="key"><br>
+content<br>
+
+<input value="[site.url][site.uname][pass]" minlength="100" name="content"><br>
+<div style="text-align: right;"><span style="text-decoration: underline;">help</span><br>
+</div>
+<h1>Test</h1>
+
+
+site<br>
+
+<input minlength="100" name="key"><br>
+
+user name<br>
+
+
+<input minlength="100" name="content"><br>
+...fancyLabel...<br>
+<br>
+</body></html>

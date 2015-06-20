@@ -3,55 +3,61 @@ re_tabs    = require('sdk/tabs')
 re_pagemod = require('sdk/page-mod')
 re_action  = require('sdk/ui/button/action')
 re_panel   = require('sdk/panel')
-re_crypto  = require('crypto-js')
+#re_crypto  = require('crypto-js')
+re_toggleb = require('sdk/ui/button/toggle')
 
-# Construct a panel, loading its content from the "text-entry.html"
-# file in the "data" directory, and loading the "get-text.js" script
-# into it.
-text_entry = re_panel.Panel(
-  contentURL: re_self.data.url('text-entry.html')
-  contentScriptFile: re_self.data.url('get-text.js'))
+handleChange = (state) ->
+  if state.checked
+    panel.show()
 
-# Create a button
-# Show the panel when the user clicks the button.
-handleClick = (state) ->
-  text_entry.show()
-  return
+handleHide = () ->
+  button.state 'window', {checked: false}
 
-re_action.ActionButton
-  id: 'show-panel'
-  label: 'Show Panel'
+button = re_toggleb.ToggleButton
+  id: 'pl_button'
+  label: 'Paceline'
   icon:
     '16': './icon-16.png'
     '32': './icon-32.png'
     '64': './icon-64.png'
-  onClick: handleClick
+  onChange: handleChange
 
-# When the panel is displayed it generated an event called
-# "show": we will listen for that event and when it happens,
-# send our own "show" event to the panel's script, so the
-# script can prepare the panel for display.
-text_entry.on 'show', ->
-  text_entry.port.emit 'show'
-  return
+panel = re_panel.Panel({
+  width: 220
+  height: 500
+  position: button
+  contentURL: re_self.data.url('panel.html')
+  onHide: handleHide
+})
 
-# Listen for messages called "text-entered" coming from
-# the content script. The message payload is the text the user entered.
-# In this implementation we'll just log the text to the console.
-text_entry.port.on 'text-entered', (text) ->
-  console.log text
-  text_entry.hide()
-  return
+#  contentScriptFile: re_self.data.url('get-text.js')
+#  text_entry.on 'show', ->
+#    text_entry.port.emit 'show'
+#    return
+#
+#  text_entry.port.on 'text-entered', (text) ->
+#    text_entry.hide()
+#    return
 
-_pl_get_pass = (uname, url, opts) ->
-  # for now, without option only for length, default 13
-  to_hash = uname + url + opts.password
-  console.log(to_hash)
+#
+#
+# Calculation of passwords
+#
+#
 
-  pass = (re_crypto.SHA256 to_hash).substring(0,13)
-  return pass
+_pl_get_pass = (uname, url) ->
+  console.log "hashing for " + url + " and username " + uname
+  # pass = (re_crypto.SHA256 to_hash).substring(0,13)
+  # return pass
+  return "123" + uname
 
-# on ready...
+#
+#
+# Getting correct inputs
+# and reading/filling them
+#
+#
+
 re_pagemod.PageMod
   include: '*'
   exclude: [
@@ -67,7 +73,8 @@ re_pagemod.PageMod
     worker.port.emit 'enable', re_tabs.activeTab.url
 
     worker.port.on 'username', ((uname, url) ->
-      _pl_get_pass uname, url, {"password": "password"}
+      pass = _pl_get_pass uname, url
+      worker.port.emit 'pass', pass
       return
     )
     return

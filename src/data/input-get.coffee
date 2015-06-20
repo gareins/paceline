@@ -37,7 +37,7 @@ _pl_init = (url) ->
   observer.observe target, config
 
   _pl_choose_input()
-  interval = setInterval _pl_choose_input,300 #0.3 seconds check
+  interval = setInterval _pl_choose_input, 600
 
   _pl_globals.observer = observer
   _pl_globals.interval = interval
@@ -56,10 +56,6 @@ _pl_body_change_listener = (mutations) ->
   )
   return
 
-_pl_input_change_listener = (mutations) ->
-  console.log "inpt"
-  return
-
 _pl_choose_input = () ->
   inputs = _pl_globals.inputs
   unameIdx = -1
@@ -71,7 +67,9 @@ _pl_choose_input = () ->
 
     bool1 = (no1.attr("type") != 'password') && (no1.is(":visible"))
     bool2 = (no2.attr("type") == 'password') && (no2.is(":visible"))
-    bool3 = (i+2 == inputs.length) || (no3.is ":hidden") || (no3.attr("type") != 'password')
+    bool3 = (i+2 == inputs.length) ||
+            (no3.is ":hidden") ||
+            (no3.attr("type") != 'password')
 
     if bool1 && bool2 && bool3
       unameIdx = i
@@ -80,16 +78,24 @@ _pl_choose_input = () ->
   if unameIdx < 0
     return
 
-  self.port.emit "username", no1.val(), _pl_globals.hostname
-  # recieve and fill password
+  uname = no1.val()
+  if uname != _pl_globals.uname && uname.length > 0
+    _pl_globals.uname = uname
+    _pl_globals.inputIdx = unameIdx
+
+    self.port.emit "username", uname, _pl_globals.hostname
+    # recieve and fill password
+ 
   return
 
 #
 # globals
-# 
+#
 _pl_globals = exports ? this
 _pl_globals.inputs = []
 _pl_globals.inputIdx = -1
+_pl_globals.uname = ""
+
 _pl_globals.interval = null
 _pl_globals.observer = null
 _pl_globals.hostname = null
@@ -97,9 +103,15 @@ _pl_globals.hostname = null
 #
 # port listeners
 #
-self.port.on 'disable', () ->
+self.port.on 'disable', (() ->
   _pl_globals.observer.disconnect()
   clearInterval _pl_globals.interval
   _pl_globals.inputs = []
+)
+
+self.port.on 'pass', ((pass) ->
+  console.log 'back... ' + pass
+  $(_pl_globals.inputs[_pl_globals.inputIdx + 1]).val(pass)
+)
   
 self.port.on 'enable', _pl_init
