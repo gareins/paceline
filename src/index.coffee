@@ -49,6 +49,7 @@ re_pagemod.PageMod
     '*.js'
     '*.css'
   ]
+  contentScriptWhen: "ready"
   contentScriptFile: [
     re_self.data.url('jquery-2.1.4.min.js')
     re_self.data.url('input-get.js')
