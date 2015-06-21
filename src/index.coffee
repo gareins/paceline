@@ -1,3 +1,12 @@
+#
+# TODO:
+# - pass length and bit2string op
+# - save settings
+# - save new password
+# - work on only this page
+# - crypto
+#
+
 re_self    = require('sdk/self')
 re_tabs    = require('sdk/tabs')
 re_pagemod = require('sdk/page-mod')
@@ -5,6 +14,24 @@ re_action  = require('sdk/ui/button/action')
 re_panel   = require('sdk/panel')
 #re_crypto  = require('crypto-js')
 re_toggleb = require('sdk/ui/button/toggle')
+
+#
+#
+# Calculation of passwords
+#
+#
+
+_pl_get_pass = (uname, url) ->
+  console.log "hashing for " + url + " and username " + uname
+  # pass = (re_crypto.SHA256 to_hash).substring(0,13)
+  # return pass
+  return "123 " + uname + " " + url
+
+#
+#
+# Panel stuff :)
+#
+#
 
 handleChange = (state) ->
   if state.checked
@@ -27,29 +54,19 @@ panel = re_panel.Panel({
   height: 500
   position: button
   contentURL: re_self.data.url('panel.html')
+  contentScriptFile: [
+    re_self.data.url('jquery-2.1.4.min.js'),
+    re_self.data.url('panel-script.js')
+  ]
   onHide: handleHide
 })
 
-#  contentScriptFile: re_self.data.url('get-text.js')
-#  text_entry.on 'show', ->
-#    text_entry.port.emit 'show'
-#    return
-#
-#  text_entry.port.on 'text-entered', (text) ->
-#    text_entry.hide()
-#    return
+panel.port.emit 'show_first', ''
 
-#
-#
-# Calculation of passwords
-#
-#
-
-_pl_get_pass = (uname, url) ->
-  console.log "hashing for " + url + " and username " + uname
-  # pass = (re_crypto.SHA256 to_hash).substring(0,13)
-  # return pass
-  return "123" + uname
+panel.port.on 'generate', ((uname, url) ->
+  pass = _pl_get_pass uname, url
+  panel.port.emit 'pass-returned', pass
+)
 
 #
 #

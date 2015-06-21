@@ -1,11 +1,8 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html><head>
-
   
-  <meta content="text/html; charset=ISO-8859-1" http-equiv="content-type"><title>PacelinePanel</title>
-  
-
-  
+  <meta content="text/html; charset=ISO-8859-1" http-equiv="content-type">
+  <title>PacelinePanel</title>
   
   <style type="text/css">
 h1 {
@@ -18,27 +15,91 @@ body {
   color: #a5a5a5;
   text-align: justify;
   margin-left: 10px;
-  font-size: 14px;
+  font-size: 12px;
 }
 .checkbox {
   font-size: 10px;
 }
+.key {
+  width: 65px;
+  float: left;
+}
+.center {
+  margin: 0 auto;
+  width: 180px;
+  text-align: center;
+}
+.inpt {
+  width: 120px;
+  text-decoration: none;
+  border-radius: 0px;
+  border: 0;
+  padding-left: 5px;
+}
+fieldset {
+  border-style: solid;
+  border-color: red;
+  text-align: center;
+}
+.hr {
+  margin-bottom: 10px;
+  margin-top: -10px;
+  text-align: center;
+  border-style: solid;
+  border-width: 1px;
+  border-color: transparent;
+}
+.hr:hover {
+  border-color: #a5a5a5;
+  cursor: pointer;
+}
+hr {
+  width: 43%;
+}
+.hrleft {
+  float: left;
+}
+.hrright {
+  float: right;
+}
 
-</style></head><body>
+  </style>
+</head><body>
 <h1>Password</h1>
 
-<input minlength="100" name="password" type="password"> <br>
+<div>
+  <div class="center">
+  <p> <input name="password" id="password-input" type="password"> <br>
+  <span class="checkbox">hidden</span> 
+  <input id="check-hidden" checked="checked" name="hidden" type="checkbox"> 
 
-<span class="checkbox">hidden</span> <input checked="checked" name="hidden" type="checkbox">
-<span class="checkbox">save password</span> <input checked="checked" name="save" type="checkbox"><br>
+  <span class="checkbox">save password</span>
+  <input checked="checked" name="save" type="checkbox"><br>
+  </p>
+  </div>
+</div>
 
-<br>
+<h1>Generate</h1>
+
+<div>
+<p> <span class="key">site</span><input class="inpt" name="site" id="site-input">
+</p>
+
+<p>
+<span class="key">username</span><input class="inpt" name="username" id="uname-input"> 
+</p>
+
+<fieldset> 
+  <legend>Password:</legend>
+  <span id=gen-pass></span>
+</fieldset>
+</div>
 
 <h1>Settings</h1>
 
-mode
+<div>
+<p> <span class="key">mode</span>
 <select>
-
 <optgroup label="Hash">
 <option value="md5">MD4</option>
 <option value="ripemd">RIPEMD-160</option>
@@ -46,35 +107,26 @@ mode
 <option value="sha256">SHA256</option>
 <option value="sha512">SHA512</option>
 <option value="sha3">SHA3</option>
-</optgroup>
-<optgroup label="Cipher">
+</optgroup> <optgroup label="Cipher">
 <option value="aescbc">AES/CBC</option>
 <option value="aesctr">AES/CBC</option>
 <option value="3descbc">3DES/CBC</option>
 <option value="3desctr">3DES/CTR</option>
 </optgroup>
 </select>
+</p>
 
-<br>
+<p> 
+<span class="key">key </span>
+<input class="inpt" name="key">
+</p>
 
-key<br>
-<input minlength="100" name="key"><br>
-content<br>
+<p> 
+<span class="key">content</span>
+<input class="inpt" value="[site.url][site.uname][pass]" name="content">
+</p>
 
-<input value="[site.url][site.uname][pass]" minlength="100" name="content"><br>
-<div style="text-align: right;"><span style="text-decoration: underline;">help</span><br>
+<div style="text-align: right;"><a id="help-alert" href="#">help</a></div>
 </div>
-<h1>Test</h1>
 
-
-site<br>
-
-<input minlength="100" name="key"><br>
-
-user name<br>
-
-
-<input minlength="100" name="content"><br>
-...fancyLabel...<br>
-<br>
 </body></html>
