@@ -49,6 +49,12 @@ generate_send = () ->
   self.port.emit 'generate', uname, site
 
 self.port.on 'show_first', ((pass) ->
+  $('#content').perfectScrollbar({
+    wheelPropagation: true
+    suppressScrollX: true
+    scrollXMarginOffset: 20
+  })
+
   for h1 in $( "h1" )
     do(h1) ->
       h = $(h1)
@@ -66,7 +72,11 @@ self.port.on 'show_first', ((pass) ->
         <hr class='hrright'></div>"""
 
   $( '.hr' ).on "click", (() ->
-    $( this ).next().toggle()
+    $( this ).next().toggle({
+      duration: 50,
+      done: () -> $('#content').perfectScrollbar('update')
+      easing: "swing"
+    })
   )
 
   if pass.length > 0
@@ -76,6 +86,30 @@ self.port.on 'show_first', ((pass) ->
 
   $("#uname-input").on "keyup", generate_send
   $("#site-input") .on "keyup", generate_send
+
+  $("#site-stat").on "click", (() ->
+    img = $( this )
+    stat = img.attr("stat")
+
+    stat = ""; src = ""; str=""
+
+    #TODO: communication
+    switch img.attr("stat")
+      when "0"
+        stat = "1"; src = "berr.png"; str = "Disabled for this page"
+      when "1"
+        stat = "2"; src = "rerr.png"; str = "Disabled for all pages"
+      else
+        stat = "0"; src = "ok.png";   str = "Enabled for this site"
+
+    img.attr("stat", stat)
+    img.attr("src", src)
+    img.attr("alt", str)
+    img.next().text str
+
+  )
+
+  $('#content').perfectScrollbar('update')
 )
 
 

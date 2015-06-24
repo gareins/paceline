@@ -50,12 +50,16 @@ button = re_toggleb.ToggleButton
   onChange: handleChange
 
 panel = re_panel.Panel({
-  width: 220
-  height: 500
+  width: 225
+  height: 400
   position: button
   contentURL: re_self.data.url('panel.html')
+  contentStyleFile: [
+    re_self.data.url('scroll/perfect-scrollbar.min.css')
+  ]
   contentScriptFile: [
     re_self.data.url('jquery-2.1.4.min.js'),
+    re_self.data.url('scroll/perfect-scrollbar.jquery.min.js'),
     re_self.data.url('panel-script.js')
   ]
   onHide: handleHide
