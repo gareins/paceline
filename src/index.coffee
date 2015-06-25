@@ -12,7 +12,7 @@ re_tabs    = require('sdk/tabs')
 re_pagemod = require('sdk/page-mod')
 re_action  = require('sdk/ui/button/action')
 re_panel   = require('sdk/panel')
-#re_crypto  = require('crypto-js')
+re_crypto  = require('crypto-js')
 re_toggleb = require('sdk/ui/button/toggle')
 
 #

@@ -9,6 +9,7 @@ h1 {
   margin-top: 5px;
   font-size: 20px;
   margin-left: 4px;
+  clear: both;
 }
 html, body {
   height: 100%;
@@ -31,7 +32,19 @@ html, body {
   position: relative;
   padding-top: 15px;
 
-  background: linear-gradient( 0deg, #a5a5a5, #a5a5a5 75%, #19171a 95%); 
+  background: linear-gradient( 0deg, #a5a5a5, #a5a5a5 75%, #19171a 95%);
+}
+.content div {
+  background-color: #19171a;
+}
+
+.hideable {
+  overflow: auto;
+}
+
+.heading-div {
+  position: relative;
+  width: 100%;
 }
 
 #password-input {
@@ -92,7 +105,7 @@ hr {
 }
 
 #site-stat {
-  display:inline; 
+  display:inline;
   vertical-align:middle;
   border: 2px solid #a5a5a5;
 }
@@ -110,19 +123,21 @@ hr {
   opacity: 0.4;
 }
 
-
-
-
     </style>
   </head><body>
     <div id="content">
-      <h1>Password</h1>
+      <div class="heading-div">
+        <h1>Password</h1>
+        <div class='hr'> <hr class='hrleft'>
+          <span>&#8616;</span>
+          <hr class='hrright'></div>
+      </div>
 
-      <div>
+      <div class="hideable">
         <div class="center">
           <p> <input name="password" id="password-input" type="password"> <br>
-          <span class="checkbox">hidden</span> 
-          <input id="check-hidden" checked="checked" name="hidden" type="checkbox"> 
+          <span class="checkbox">hidden</span>
+          <input id="check-hidden" checked="checked" name="hidden" type="checkbox">
 
           <span class="checkbox">save password</span>
           <input checked="checked" name="save" type="checkbox"><br>
@@ -130,25 +145,36 @@ hr {
         </div>
       </div>
 
-      <h1>Generate</h1>
+      <div class="heading-div">
+        <h1>Generate</h1>
+        <div class='hr'> <hr class='hrleft'>
+          <span>&#8616;</span>
+          <hr class='hrright'>
+        </div>
+      </div>
 
-      <div>
+      <div class="hideable">
         <p> <span class="key">site</span><input class="inpt" name="site" id="site-input">
         </p>
 
         <p>
-        <span class="key">username</span><input class="inpt" name="username" id="uname-input"> 
+        <span class="key">username</span><input class="inpt" name="username" id="uname-input">
         </p>
 
-        <fieldset> 
+        <fieldset>
           <legend>Password:</legend>
           <span id=gen-pass></span>
         </fieldset>
       </div>
 
-      <h1>Settings</h1>
+      <div class="heading-div">
+        <h1>Settings</h1>
+        <div class='hr'> <hr class='hrleft'>
+          <span>&#8616;</span>
+          <hr class='hrright'></div>
+      </div>
 
-      <div>
+      <div class="hideable">
         <p> <span class="key">mode</span>
         <select>
           <optgroup label="Hash">
@@ -167,18 +193,31 @@ hr {
         </select>
         </p>
 
-        <p> 
+        <p>
         <span class="key">key </span>
         <input class="inpt" name="key">
         </p>
 
-        <p> 
+        <p>
         <span class="key">content</span>
         <input class="inpt" value="[site.url][site.uname][pass]" name="content">
         </p>
 
+        <p>
+        <span class="key">length</span>
+        <input class="inpt" value="16" name="length">
+        </p>
+
+        <p> <span class="key">bit2string</span>
+        <select>
+          <option value="hex">HEX</option>
+          <option value="b64">Base64</option>
+        </select>
+        </p>
+
         <div style="text-align: right; margin-right:5px;"><a id="help-alert" href="#">help</a></div>
       </div>
+      <hr style="width: 100%; border-top: dashed 1px; opacity:50%" />
     </div>
 
     <div id="footer">

@@ -64,19 +64,38 @@ self.port.on 'show_first', ((pass) ->
       if !(pass.length == 0 && h.text() == "Password") &&
          !(pass.length > 0  && h.text() == "Generate")
 
-        h.next().toggle()
-
-      h.after """
-        <div class='hr'> <hr class='hrleft'>
-        <span>&#8616;</span>
-        <hr class='hrright'></div>"""
+        to_hide = h.parent().next()
+        to_hide.css "margin-bottom", ("-" + to_hide.css "height")
+        to_hide.css "opacity", 0
+        to_hide.hide()
 
   $( '.hr' ).on "click", (() ->
-    $( this ).next().toggle({
-      duration: 50,
-      done: () -> $('#content').perfectScrollbar('update')
-      easing: "swing"
-    })
+    el = $( this ).parent().next()
+
+    hid = el.is(":hidden")
+    height = el.css "height"
+
+    if hid
+      el.show()
+      #el.css "margin-bottom", ("-" + height)
+      #el.css "opacity", 0
+      el.animate(
+        {"margin-bottom": "0px", "opacity": 1},
+        200,
+        () ->
+          $('#content').perfectScrollbar('update')
+      )
+
+    else
+      #el.css "margin-bottom", "0px"
+      #el.css "opacity", 1
+      el.animate(
+        {"margin-bottom": ("-" + height), "opacity": 0},
+        200,
+        () ->
+          el.hide()
+          $('#content').perfectScrollbar('update')
+      )
   )
 
   if pass.length > 0
@@ -111,6 +130,3 @@ self.port.on 'show_first', ((pass) ->
 
   $('#content').perfectScrollbar('update')
 )
-
-
-
