@@ -122,6 +122,10 @@ hr {
 #footer span {
   opacity: 0.4;
 }
+#content-error-p {
+  font-size: 10px;
+  margin-top: -10px;
+}
 
     </style>
   </head><body>
@@ -140,7 +144,7 @@ hr {
           <input id="check-hidden" checked="checked" name="hidden" type="checkbox">
 
           <span class="checkbox">save password</span>
-          <input checked="checked" name="save" type="checkbox"><br>
+          <input id="check-save" checked="checked" name="save" type="checkbox"><br>
           </p>
         </div>
       </div>
@@ -176,40 +180,43 @@ hr {
 
       <div class="hideable">
         <p> <span class="key">mode</span>
-        <select>
+        <select id="mode-select" name="mode">
           <optgroup label="Hash">
-            <option value="md5">MD4</option>
+            <option value="md5">MD5</option>
             <option value="ripemd">RIPEMD-160</option>
             <option value="sha1">SHA1</option>
             <option value="sha256">SHA256</option>
             <option value="sha512">SHA512</option>
             <option value="sha3">SHA3</option>
-          </optgroup> <optgroup label="Cipher">
-            <option value="aescbc">AES/CBC</option>
-            <option value="aesctr">AES/CBC</option>
-            <option value="3descbc">3DES/CBC</option>
-            <option value="3desctr">3DES/CTR</option>
-          </optgroup>
+            <!-- </optgroup> <optgroup label="Cipher"> -->
         </select>
         </p>
 
         <p>
-        <span class="key">key </span>
-        <input class="inpt" name="key">
+        <span class="key">content</span>
+        <textarea class="inpt" rows="3" name="content">[site.url][uname][pass]</textarea>
         </p>
 
-        <p>
-        <span class="key">content</span>
-        <input class="inpt" value="[site.url][site.uname][pass]" name="content">
+        <p id="content-error-p">
+        <span class="key">&nbsp;</span>
+        <span id="content-error" style="color: red">&nbsp;</span>
         </p>
 
         <p>
         <span class="key">length</span>
-        <input class="inpt" value="16" name="length">
+        <select id="length-select" name="length">
+          <option value="8" >8</option>
+          <option value="10">10</option>
+          <option value="12">12</option>
+          <option value="14">14</option>
+          <option value="16">16</option>
+          <option value="18">18</option>
+          <option value="20">20</option>
+        </select>
         </p>
 
         <p> <span class="key">bit2string</span>
-        <select>
+        <select id="bit2string-select" name="bit2string">
           <option value="hex">HEX</option>
           <option value="b64">Base64</option>
         </select>

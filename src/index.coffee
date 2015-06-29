@@ -12,7 +12,7 @@ re_tabs    = require('sdk/tabs')
 re_pagemod = require('sdk/page-mod')
 re_action  = require('sdk/ui/button/action')
 re_panel   = require('sdk/panel')
-re_crypto  = require('crypto-js')
+#re_crypto  = require('crypto-js')
 re_toggleb = require('sdk/ui/button/toggle')
 
 #
@@ -25,7 +25,7 @@ _pl_get_pass = (uname, url) ->
   console.log "hashing for " + url + " and username " + uname
   # pass = (re_crypto.SHA256 to_hash).substring(0,13)
   # return pass
-  return "123 " + uname + " " + url
+  return "bit2str(alg(" + uname + "" + url + "))[0:len]"
 
 #
 #
@@ -99,3 +99,14 @@ re_pagemod.PageMod
       return
     )
     return
+
+#
+#
+# Settings manipulation and
+# store
+#
+#
+
+panel.port.on 'apply-settings', ((settings) ->
+  console.log settings
+)

@@ -1,10 +1,5 @@
-$( "#check-hidden" ).on "click", (() ->
-  if $(this).prop('checked')
-    $("#password-input").attr('type', "password")
-  else
-    $("#password-input").attr('type', "text")
-)
 
+# click handler for "help" alert link
 $( "#help-alert" ).on "click", (() ->
   alert """
     Help setting up paceline.
@@ -38,23 +33,45 @@ $( "#help-alert" ).on "click", (() ->
   """
 )
 
+# fill password box on pass-returned event
 self.port.on 'pass-returned', ((pass) ->
   $("#gen-pass").text(pass)
-  console.log pass
 )
 
+# send password info on username/webpage change
 generate_send = () ->
   uname = $("#uname-input").val()
   site  = $("#site-input").val()
   self.port.emit 'generate', uname, site
 
+# slide divs up-down when requested
+slide_up_down = ((el, length) ->
+  if el.is(":hidden")
+    el.show()
+    el.animate(
+      {"margin-bottom": "0px", "opacity": 1},
+      length,
+      () -> $('#content').perfectScrollbar('update')
+    )
+
+  else
+    el.animate(
+      {"margin-bottom": ("-" + el.css "height"), "opacity": 0},
+      length,
+      () ->
+        el.hide()
+        $('#content').perfectScrollbar('update')
+    )
+)
+
+# initialization sequence
 self.port.on 'show_first', ((pass) ->
+  #init scrollbar
   $('#content').perfectScrollbar({
-    wheelPropagation: true
     suppressScrollX: true
-    scrollXMarginOffset: 20
   })
 
+  #hide divs on startup
   for h1 in $( "h1" )
     do(h1) ->
       h = $(h1)
@@ -64,69 +81,98 @@ self.port.on 'show_first', ((pass) ->
       if !(pass.length == 0 && h.text() == "Password") &&
          !(pass.length > 0  && h.text() == "Generate")
 
-        to_hide = h.parent().next()
-        to_hide.css "margin-bottom", ("-" + to_hide.css "height")
-        to_hide.css "opacity", 0
-        to_hide.hide()
+        slide_up_down h.parent().next(), 10
 
-  $( '.hr' ).on "click", (() ->
-    el = $( this ).parent().next()
+  # on click -> slide up/down
+  $( '.hr' ).on "click", () ->
+    slide_up_down $(this).parent().next(), 200
 
-    hid = el.is(":hidden")
-    height = el.css "height"
+  $( "#password-input" ).val( pass )
 
-    if hid
-      el.show()
-      #el.css "margin-bottom", ("-" + height)
-      #el.css "opacity", 0
-      el.animate(
-        {"margin-bottom": "0px", "opacity": 1},
-        200,
-        () ->
-          $('#content').perfectScrollbar('update')
-      )
-
-    else
-      #el.css "margin-bottom", "0px"
-      #el.css "opacity", 1
-      el.animate(
-        {"margin-bottom": ("-" + height), "opacity": 0},
-        200,
-        () ->
-          el.hide()
-          $('#content').perfectScrollbar('update')
-      )
-  )
-
-  if pass.length > 0
-    $( "#password-input" ).val( pass )
-
+  # generate password for empty uname/page
   self.port.emit 'generate', "", ""
 
   $("#uname-input").on "keyup", generate_send
   $("#site-input") .on "keyup", generate_send
 
-  $("#site-stat").on "click", (() ->
-    img = $( this )
-    stat = img.attr("stat")
+  $("#content-error-p").hide()
+)
 
-    stat = ""; src = ""; str=""
+#loose focus on enter key
+$("textarea").on "keydown", (e) ->
+  if e.keyCode == 13
+    e.preventDefault()
+    $(':focus').blur()
 
-    #TODO: communication
-    switch img.attr("stat")
-      when "0"
-        stat = "1"; src = "berr.png"; str = "Disabled for this page"
-      when "1"
-        stat = "2"; src = "rerr.png"; str = "Disabled for all pages"
-      else
-        stat = "0"; src = "ok.png";   str = "Enabled for this site"
+# on settings change function handler
+on_setting_change = ((setting, value) ->
+  #ALL TODO
+  console.log setting, value
+)
 
-    img.attr("stat", stat)
-    img.attr("src", src)
-    img.attr("alt", str)
-    img.next().text str
+# for couple of simple settings change
+on_simple_setting_change = () ->
+  el = $( this )
+  on_setting_change el.val(), el.attr "name"
 
-  )
+# saving settings on change: imple versions
+$("#mode-select").change       on_simple_setting_change
+$("#length-select").change     on_simple_setting_change
+$("#bit2string-select").change on_simple_setting_change
+
+# handler for "save password" checkbox
+$("#check-save").on "click", () ->
+  on_setting_change $( this ).prop("checked"), "save"
+
+# click handler for "hide password" checkbox
+$( "#check-hidden" ).on "click", (() ->
+  $("#password-input").attr 'type',
+    if $(this).prop('checked') then "password" else "text"
+
+  on_setting_change $( this ).prop("checked"), "hidden"
+)
+
+# change handler for "content" text field
+$("textarea").change (() ->
+  el = $( this )
+  allowed = ["site.url", "uname", "pass"]
+  txt = el.val()
+  re = /\[([^\]]+)\]/g
+
+  found = null
+  for m in txt.match(re)
+    do (m) ->
+      m = m.substring 1, m.length-1
+      if m not in allowed
+        found = m
+
+  cep = $("#content-error-p")
+
+  if found
+    cep.show()
+    cep.children().eq(1).text("Error: " + found)
+  else
+    cep.hide()
+    on_setting_change txt, "content"
 
   $('#content').perfectScrollbar('update')
 )
+
+# hangeld for image click
+$("#site-stat").on "click", (() ->
+  img = $( this )
+  stat = img.attr("stat")
+  a = (f,s) -> img.attr(f,s)
+
+  switch img.attr("stat")
+    when "0"
+      a("stat", "1"); a("src", "berr.png"); a("alt", "Disabled for this page")
+    when "1"
+      a("stat", "2"); a("src", "rerr.png"); a("alt", "Disabled for all pages")
+    else
+      a("stat", "0"); a("src", "ok.png"); a("alt", "Enabled for this site")
+
+  img.next().text img.attr("alt")
+  on_setting_change img.attr("stat"), "enable"
+)
+
