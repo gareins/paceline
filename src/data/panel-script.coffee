@@ -1,4 +1,3 @@
-
 # click handler for "help" alert link
 $( "#help-alert" ).on "click", (() ->
   alert """
@@ -64,12 +63,35 @@ slide_up_down = ((el, length) ->
     )
 )
 
+
+
+# on click -> slide up/down
+$( '.hr' ).on "click", () ->
+  slide_up_down $(this).parent().next(), 200
+
+# for username/website input, keyup listeners
+$("#uname-input").on "keyup", generate_send
+$("#site-input") .on "keyup", generate_send
+
 # initialization sequence
-self.port.on 'show_first', ((pass) ->
+self.port.on 'show_first', ((pass, settings) ->
   #init scrollbar
   $('#content').perfectScrollbar({
     suppressScrollX: true
   })
+
+  # fill settings
+  $('#check-hidden')     .attr 'checked', settings.hidden
+  $('#check-save')       .attr 'checked', settings.save
+  $('#mode-select')      .val settings.mode
+  $('#length-select')    .val settings.length
+  $('#text-content')     .val settings.content
+  $('#bit2string-select').val settings.bit2str
+  $("#password-input")   .val pass
+
+  # set page_stat
+  if !settings.enable
+    set_page_stat 2
 
   #hide divs on startup
   for h1 in $( "h1" )
@@ -83,19 +105,12 @@ self.port.on 'show_first', ((pass) ->
 
         slide_up_down h.parent().next(), 10
 
-  # on click -> slide up/down
-  $( '.hr' ).on "click", () ->
-    slide_up_down $(this).parent().next(), 200
-
-  $( "#password-input" ).val( pass )
-
   # generate password for empty uname/page
   self.port.emit 'generate', "", ""
 
-  $("#uname-input").on "keyup", generate_send
-  $("#site-input") .on "keyup", generate_send
-
+  # hide content error paragraph
   $("#content-error-p").hide()
+  hidden_func()
 )
 
 #loose focus on enter key
@@ -106,14 +121,13 @@ $("textarea").on "keydown", (e) ->
 
 # on settings change function handler
 on_setting_change = ((setting, value) ->
-  #ALL TODO
-  console.log setting, value
+  self.port.emit 'apply-setting', setting, value
 )
 
 # for couple of simple settings change
 on_simple_setting_change = () ->
   el = $( this )
-  on_setting_change el.val(), el.attr "name"
+  on_setting_change el.attr("name"), el.val()
 
 # saving settings on change: imple versions
 $("#mode-select").change       on_simple_setting_change
@@ -122,15 +136,18 @@ $("#bit2string-select").change on_simple_setting_change
 
 # handler for "save password" checkbox
 $("#check-save").on "click", () ->
-  on_setting_change $( this ).prop("checked"), "save"
+  on_setting_change "save", $( this ).prop("checked")
 
 # click handler for "hide password" checkbox
-$( "#check-hidden" ).on "click", (() ->
+hidden_func = () ->
   $("#password-input").attr 'type',
-    if $(this).prop('checked') then "password" else "text"
+    if $("#check-hidden").prop('checked') then "password" else "text"
+  on_setting_change "hidden", $( this ).prop("checked")
+$( "#check-hidden" ).on "change", hidden_func
 
-  on_setting_change $( this ).prop("checked"), "hidden"
-)
+$("#password-input").on "change", () ->
+  self.port.emit 'password-change', $( this ).val()
+  generate_send()
 
 # change handler for "content" text field
 $("textarea").change (() ->
@@ -153,26 +170,35 @@ $("textarea").change (() ->
     cep.children().eq(1).text("Error: " + found)
   else
     cep.hide()
-    on_setting_change txt, "content"
+    on_setting_change "content", txt
 
   $('#content').perfectScrollbar('update')
 )
 
-# hangeld for image click
+# handle for image click
 $("#site-stat").on "click", (() ->
   img = $( this )
   stat = img.attr("stat")
-  a = (f,s) -> img.attr(f,s)
+  nxt_stat = ((stat+1)%3)
 
-  switch img.attr("stat")
-    when "0"
-      a("stat", "1"); a("src", "berr.png"); a("alt", "Disabled for this page")
-    when "1"
-      a("stat", "2"); a("src", "rerr.png"); a("alt", "Disabled for all pages")
-    else
-      a("stat", "0"); a("src", "ok.png"); a("alt", "Enabled for this site")
+  set_page_stat nxt_stat
+
+  if nxt_stat != 2
+    self.port.emit 'change-stat', nxt_stat==0
 
   img.next().text img.attr("alt")
-  on_setting_change img.attr("stat"), "enable"
+  on_setting_change "enable", img.attr("stat") != "2"
 )
+
+set_page_stat = (stat) ->
+  img = $("#site-stat")
+  a = (f,s) -> img.attr(f,s)
+
+  switch stat
+    when 0
+      a("stat", "0"); a("src", "ok.png"); a("alt", "Enabled for this site")
+    when 1
+      a("stat", "1"); a("src", "berr.png"); a("alt", "Disabled for this page")
+    else
+      a("stat", "2"); a("src", "rerr.png"); a("alt", "Disabled for all pages")
 

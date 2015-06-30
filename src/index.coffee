@@ -1,10 +1,12 @@
 #
 # TODO:
-# - pass length and bit2string op
-# - save settings
-# - save new password
-# - work on only this page
+# - copy
+# - work only on this page, lists...
 # - crypto
+#
+# LATER:
+# - green acknowledgment on password change
+# - predefined options?
 #
 
 re_self    = require('sdk/self')
@@ -14,6 +16,8 @@ re_action  = require('sdk/ui/button/action')
 re_panel   = require('sdk/panel')
 #re_crypto  = require('crypto-js')
 re_toggleb = require('sdk/ui/button/toggle')
+re_storage = require('sdk/simple-storage')
+re_url     = require('sdk/url')
 
 #
 #
@@ -22,10 +26,15 @@ re_toggleb = require('sdk/ui/button/toggle')
 #
 
 _pl_get_pass = (uname, url) ->
-  console.log "hashing for " + url + " and username " + uname
+  s = re_storage.storage.settings
+
+  content = s.content
+  content = content.replace(/\[uname\]/g, uname)
+  content = content.replace(/\[pass\]/g, re_storage.storage.password)
+  content = content.replace(/\[site\.url\]/g, url)
+
+  return s.bit2str + "(" + s.mode + "(" + content + "))[0:" + s.length + "]"
   # pass = (re_crypto.SHA256 to_hash).substring(0,13)
-  # return pass
-  return "bit2str(alg(" + uname + "" + url + "))[0:len]"
 
 #
 #
@@ -65,7 +74,6 @@ panel = re_panel.Panel({
   onHide: handleHide
 })
 
-panel.port.emit 'show_first', ''
 
 panel.port.on 'generate', ((uname, url) ->
   pass = _pl_get_pass uname, url
@@ -107,6 +115,45 @@ re_pagemod.PageMod
 #
 #
 
-panel.port.on 'apply-settings', ((settings) ->
-  console.log settings
+store = re_storage.storage
+default_settings =
+  'hidden': false
+  'save': false
+  'mode': 'sha1'
+  'length': '12'
+  'content': 'ozbo[site.url][uname][pass]'
+  'bit2str': 'b64'
+  'enable': true
+
+if not store.settings
+  store.settings = default_settings
+  store.password = ""
+  store.disabled_sites = []
+
+panel.port.on 'apply-setting', ((key, value) ->
+  if not (key of store.settings)
+    console.log "key not in store.settings!!"
+    return
+  store.settings[key] = value
 )
+
+panel.port.on 'password-change', (pass) ->
+  store.password = pass
+  panel.port.emit 'pass-returned', ""
+
+# listener for panel click to change stat
+panel.port.on 'change-stat', (stat) ->
+  url = re_url.URL(re_tabs.activeTab.url).host
+  if !url #for non-url pages
+    return
+
+  #TODO: save
+  console.log url, stat
+
+#
+#
+# Init
+#
+#
+
+panel.port.emit 'show_first', store.password, store.settings
