@@ -51,7 +51,7 @@ html, body {
   width: 160px;
 }
 .checkbox {
-  font-size: 10px;
+  font-size: 11px;
 }
 .key {
   width: 65px;
@@ -72,8 +72,22 @@ html, body {
 fieldset {
   border-style: solid;
   border-color: #a5a5a5;
-  text-align: center;
+  font-size: 10px;
+  padding-top: 6px; /*ugly way to center image with text*/
 }
+#copy-button {
+  background: url(copy.png) repeat;
+  width: 16px;
+  height: 16px;
+  margin: -2px 5px 0 0;
+  float: right;
+  padding: 0 0 0 16px; /*TODO: better fix for no outline*/
+  border: none;
+}
+#copy-button:active {
+  background: linear-gradient(to bottom, rgba(255,255,255,0.2) 0%,rgba(255,255,255,0.2) 100%), url(copy.png) repeat 0 0;
+}
+
 .hr {
   margin-bottom: 10px;
   margin-top: -10px;
@@ -86,6 +100,9 @@ fieldset {
 .hr:hover {
   border-color: #a5a5a5;
   cursor: pointer;
+}
+.hr span {
+  -moz-user-select: none;
 }
 hr {
   width: 43%;
@@ -125,6 +142,10 @@ hr {
 #content-error-p {
   font-size: 10px;
   margin-top: -10px;
+}
+
+#gen-pass {
+  font-family: monospace;
 }
 
     </style>
@@ -168,7 +189,9 @@ hr {
         <fieldset>
           <legend>Password:</legend>
           <span id=gen-pass></span>
+          <input id="copy-button" type="button" value="" />
         </fieldset>
+
       </div>
 
       <div class="heading-div">
@@ -229,7 +252,7 @@ hr {
 
     <div id="footer">
       <div style="margin-left: 20px;">
-        <img src="ok.png" alt="Enabled" stat="0" id="site-stat" width="23" height="23">
+        <img src="icons/green_64.png" alt="Enabled" stat="0" id="site-stat" width="23" height="23">
         <span> Enabled for this site </span>
       </div>
     </div>

@@ -1,23 +1,25 @@
 #
 # TODO:
-# - copy
-# - work only on this page, lists...
+# - work only on this page
 # - crypto
 #
 # LATER:
 # - green acknowledgment on password change
 # - predefined options?
+# - list of disabled sites?
+# - animation on copy
 #
 
-re_self    = require('sdk/self')
-re_tabs    = require('sdk/tabs')
-re_pagemod = require('sdk/page-mod')
-re_action  = require('sdk/ui/button/action')
-re_panel   = require('sdk/panel')
-#re_crypto  = require('crypto-js')
-re_toggleb = require('sdk/ui/button/toggle')
-re_storage = require('sdk/simple-storage')
-re_url     = require('sdk/url')
+re_self      = require('sdk/self')
+re_tabs      = require('sdk/tabs')
+re_pagemod   = require('sdk/page-mod')
+re_action    = require('sdk/ui/button/action')
+re_panel     = require('sdk/panel')
+#re_crypto    = require('crypto-js') # use page-worker!!
+re_toggleb   = require('sdk/ui/button/toggle')
+re_storage   = require('sdk/simple-storage')
+re_url       = require('sdk/url')
+re_clipboard = require('sdk/clipboard')
 
 #
 #
@@ -53,9 +55,9 @@ button = re_toggleb.ToggleButton
   id: 'pl_button'
   label: 'Paceline'
   icon:
-    '16': './icon-16.png'
-    '32': './icon-32.png'
-    '64': './icon-64.png'
+    '16': './icons/green_16.png'
+    '32': './icons/green_32.png'
+    '64': './icons/green_64.png'
   onChange: handleChange
 
 panel = re_panel.Panel({
@@ -79,6 +81,9 @@ panel.port.on 'generate', ((uname, url) ->
   pass = _pl_get_pass uname, url
   panel.port.emit 'pass-returned', pass
 )
+
+panel.port.on 'copy', (txt) ->
+  re_clipboard.set txt, "text"
 
 #
 #
@@ -128,7 +133,7 @@ default_settings =
 if not store.settings
   store.settings = default_settings
   store.password = ""
-  store.disabled_sites = []
+  store.disabled_sites = new Set([])
 
 panel.port.on 'apply-setting', ((key, value) ->
   if not (key of store.settings)
@@ -147,8 +152,12 @@ panel.port.on 'change-stat', (stat) ->
   if !url #for non-url pages
     return
 
-  #TODO: save
-  console.log url, stat
+  #save to disabled_sites
+  ds = store.disabled_sites
+  if stat
+    ds.delete(url)
+  else
+    ds.add(url)
 
 #
 #

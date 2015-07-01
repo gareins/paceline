@@ -12,6 +12,9 @@
     "preview": "(cd build ; jpm run -b /usr/bin/firefox)",
     "watch": "grunt watch",
     "build": "grunt",
+    "icons": "./data/icon_src/generator.sh",
+
+    "buildall": "(npm run clean; npm run icons; npm run build)",
     "clean": "rm -rf build"
   },
   "license": "MPL-2.0",

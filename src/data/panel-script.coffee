@@ -63,7 +63,9 @@ slide_up_down = ((el, length) ->
     )
 )
 
-
+# on copy click
+$('#copy-button').on 'click', () ->
+  self.port.emit 'copy', $( this ).prev().text()
 
 # on click -> slide up/down
 $( '.hr' ).on "click", () ->
@@ -196,9 +198,9 @@ set_page_stat = (stat) ->
 
   switch stat
     when 0
-      a("stat", "0"); a("src", "ok.png"); a("alt", "Enabled for this site")
+      a("stat", "0"); a("src", "icons/green_64.png"); a("alt", "Enabled for this site")
     when 1
-      a("stat", "1"); a("src", "berr.png"); a("alt", "Disabled for this page")
+      a("stat", "1"); a("src", "icons/red_64.png"); a("alt", "Disabled for this page")
     else
-      a("stat", "2"); a("src", "rerr.png"); a("alt", "Disabled for all pages")
+      a("stat", "2"); a("src", "icons/grey_64.png"); a("alt", "Disabled for all pages")
 
