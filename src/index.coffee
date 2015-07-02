@@ -1,7 +1,6 @@
 #
 # TODO:
 # - work only on this page
-# - crypto
 #
 # LATER:
 # - green acknowledgment on password change
@@ -15,7 +14,7 @@ re_tabs      = require('sdk/tabs')
 re_pagemod   = require('sdk/page-mod')
 re_action    = require('sdk/ui/button/action')
 re_panel     = require('sdk/panel')
-#re_crypto    = require('crypto-js') # use page-worker!!
+re_worker    = require('sdk/page-worker')
 re_toggleb   = require('sdk/ui/button/toggle')
 re_storage   = require('sdk/simple-storage')
 re_url       = require('sdk/url')
@@ -27,7 +26,23 @@ re_clipboard = require('sdk/clipboard')
 #
 #
 
-_pl_get_pass = (uname, url) ->
+cipher = re_worker.Page {
+  contentScriptFile: [
+    re_self.data.url('crypto/sha256.js'),
+    re_self.data.url('crypto/sha512.js'),
+    re_self.data.url('crypto/sha1.js'),
+    re_self.data.url('crypto/sha3.js'),
+    re_self.data.url('crypto/ripemd160.js'),
+    re_self.data.url('crypto/md5.js'),
+    re_self.data.url('crypto/enc-base64-min.js'),
+    re_self.data.url('crypto.js')
+  ]
+}
+
+# function takes uname and url, generates
+# hash password according to settings, then
+# passes resulting string to return function
+get_pass = (uname, url, return_func) ->
   s = re_storage.storage.settings
 
   content = s.content
@@ -35,8 +50,15 @@ _pl_get_pass = (uname, url) ->
   content = content.replace(/\[pass\]/g, re_storage.storage.password)
   content = content.replace(/\[site\.url\]/g, url)
 
-  return s.bit2str + "(" + s.mode + "(" + content + "))[0:" + s.length + "]"
-  # pass = (re_crypto.SHA256 to_hash).substring(0,13)
+  cipher.port.emit "hash", content, s.mode, s.bit2str
+  cipher.port.once "ret", (c) ->
+    c = c.replace(/\//g,"") #TODO: make only one regex :)
+    c = c.replace(/\+/g,"")
+    c = c.replace(/=/g,"")
+
+    while c.length < s.length #this could be done O(1), but it's 2AM...
+      c = c + "0"
+    return_func (c.substring 0, s.length)
 
 #
 #
@@ -78,8 +100,8 @@ panel = re_panel.Panel({
 
 
 panel.port.on 'generate', ((uname, url) ->
-  pass = _pl_get_pass uname, url
-  panel.port.emit 'pass-returned', pass
+  get_pass uname, url, (p) ->
+    panel.port.emit 'pass-returned', p
 )
 
 panel.port.on 'copy', (txt) ->
@@ -107,9 +129,8 @@ re_pagemod.PageMod
     worker.port.emit 'enable', re_tabs.activeTab.url
 
     worker.port.on 'username', ((uname, url) ->
-      pass = _pl_get_pass uname, url
-      worker.port.emit 'pass', pass
-      return
+      get_pass uname, url, (p) ->
+        worker.port.emit 'pass', p
     )
     return
 
