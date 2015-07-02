@@ -69,7 +69,7 @@ panel = re_panel.Panel({
     re_self.data.url('scroll/perfect-scrollbar.min.css')
   ]
   contentScriptFile: [
-    re_self.data.url('jquery-2.1.4.min.js'),
+    re_self.data.url('jquery.min.js'),
     re_self.data.url('scroll/perfect-scrollbar.jquery.min.js'),
     re_self.data.url('panel-script.js')
   ]
@@ -100,7 +100,7 @@ re_pagemod.PageMod
   ]
   contentScriptWhen: "ready"
   contentScriptFile: [
-    re_self.data.url('jquery-2.1.4.min.js')
+    re_self.data.url('jquery.min.js')
     re_self.data.url('input-get.js')
   ]
   onAttach: (worker) ->

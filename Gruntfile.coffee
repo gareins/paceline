@@ -29,16 +29,9 @@ module.exports = (grunt) ->
             expand: true
             overwrite: true
             cwd: 'data'
-            src: ['*']
+            src: ['panel.html', 'copy.png']
             dest: 'build/data'
           },
-          {
-            expand: true
-            overwrite: true
-            cwd: 'src/data'
-            src: ['*.js']
-            dest: 'build/data'
-          }
           {
             expand: true
             overwrite: true

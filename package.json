@@ -11,15 +11,14 @@
   "scripts": {
     "preview": "(cd build ; jpm run -b /usr/bin/firefox)",
     "watch": "grunt watch",
-    "build": "grunt",
-    "icons": "./data/icon_src/generator.sh",
 
-    "buildall": "(npm run clean; npm run icons; npm run build)",
-    "clean": "rm -rf build"
+    "icons": "./data/scripts/icons_generator.sh",
+    "deps": "./data/scripts/download_scripts.sh",
+    "clean": "rm -rf build",
+    "buildall": "(npm run clean; npm run deps; npm run icons; grunt)"
   },
   "license": "MPL-2.0",
   "dependencies": {
-    "crypto-js": "^3.1.5"
   },
   "devDependencies": {
     "coffee-script": "^1.9.3",
