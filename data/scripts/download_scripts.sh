@@ -43,3 +43,16 @@ curl $src -L -o $tmpf
 
 unzip -p $tmpf css/perfect-scrollbar.min.css > "$out_fold""scroll/perfect-scrollbar.min.css"
 unzip -p $tmpf js/min/perfect-scrollbar.jquery.min.js > "$out_fold""scroll/perfect-scrollbar.jquery.min.js"
+
+
+echo ""
+echo "==> Downloading tooltipsy files..."
+echo ""
+
+src="https://raw.githubusercontent.com/briancray/tooltipsy/master/tooltipsy.min.js"
+curl $src -o "$out_fold""tooltipsy.min.js"
+
+
+echo ""
+echo "==> DONE DOWNLOADING"
+echo ""

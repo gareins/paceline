@@ -204,3 +204,7 @@ set_page_stat = (stat) ->
     else
       a("stat", "2"); a("src", "icons/grey_64.png"); a("alt", "Disabled for all pages")
 
+# tooltip
+$('#copy-button').tooltipsy({
+  delay:80
+})

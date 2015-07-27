@@ -1,12 +1,12 @@
 #
 # TODO:
 # - work only on this page
+# - save on reboot
 #
 # LATER:
 # - green acknowledgment on password change
 # - predefined options?
 # - list of disabled sites?
-# - animation on copy
 #
 
 re_self      = require('sdk/self')
@@ -93,6 +93,7 @@ panel = re_panel.Panel({
   contentScriptFile: [
     re_self.data.url('jquery.min.js'),
     re_self.data.url('scroll/perfect-scrollbar.jquery.min.js'),
+    re_self.data.url('tooltipsy.min.js'),
     re_self.data.url('panel-script.js')
   ]
   onHide: handleHide
