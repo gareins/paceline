@@ -1,12 +1,15 @@
 #
 # TODO:
 # - work only on this page
-# - save on reboot
 #
 # LATER:
 # - green acknowledgment on password change
 # - predefined options?
 # - list of disabled sites?
+#
+# BUGS: 
+# - feedly -> twitter...
+# - change password on settings change
 #
 
 re_self      = require('sdk/self')
@@ -56,7 +59,7 @@ get_pass = (uname, url, return_func) ->
     c = c.replace(/\+/g,"")
     c = c.replace(/=/g,"")
 
-    while c.length < s.length #this could be done O(1), but it's 2AM...
+    while c.length < s.length #TODO: this could be done O(1), but it's 2AM...
       c = c + "0"
     return_func (c.substring 0, s.length)
 
@@ -99,7 +102,6 @@ panel = re_panel.Panel({
   onHide: handleHide
 })
 
-
 panel.port.on 'generate', ((uname, url) ->
   get_pass uname, url, (p) ->
     panel.port.emit 'pass-returned', p
@@ -134,6 +136,18 @@ re_pagemod.PageMod
         worker.port.emit 'pass', p
     )
     return
+
+# Observer to detect pageload and change icons accordingly
+
+function_on_change_url = (t) ->
+  url = re_url.URL(t.url).host
+  if !url #for non-url pages
+    return
+
+  console.log url
+
+re_tabs.on "ready", function_on_change_url
+re_tabs.on "activate", function_on_change_url
 
 #
 #
@@ -180,6 +194,12 @@ panel.port.on 'change-stat', (stat) ->
     ds.delete(url)
   else
     ds.add(url)
+
+is_site_disabled = (site) ->
+  return not (site in store.disabled_sites)
+
+#panel.port.on 'is-site-disabled', (s) ->
+#  panel.port.emit 'site-disabled', is_site_disabled(s)
 
 #
 #
