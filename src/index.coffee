@@ -9,7 +9,6 @@
 #
 # BUGS: 
 # - feedly -> twitter...
-# - change password on settings change
 #
 
 re_self      = require('sdk/self')
@@ -173,7 +172,7 @@ if not store.settings
 
 panel.port.on 'apply-setting', ((key, value) ->
   if not (key of store.settings)
-    console.log "key not in store.settings!!"
+    console.log key + " not in store.settings!!"
     return
   store.settings[key] = value
 )

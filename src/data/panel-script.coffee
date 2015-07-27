@@ -122,9 +122,9 @@ $("textarea").on "keydown", (e) ->
     $(':focus').blur()
 
 # on settings change function handler
-on_setting_change = ((setting, value) ->
+on_setting_change = (setting, value) ->
   self.port.emit 'apply-setting', setting, value
-)
+  generate_send()
 
 # for couple of simple settings change
 on_simple_setting_change = () ->
@@ -145,6 +145,7 @@ hidden_func = () ->
   $("#password-input").attr 'type',
     if $("#check-hidden").prop('checked') then "password" else "text"
   on_setting_change "hidden", $( this ).prop("checked")
+
 $( "#check-hidden" ).on "change", hidden_func
 
 $("#password-input").on "change", () ->
@@ -198,11 +199,17 @@ set_page_stat = (stat) ->
 
   switch stat
     when 0
-      a("stat", "0"); a("src", "icons/green_64.png"); a("alt", "Enabled for this site")
+      a("stat", "0")
+      a("src", "icons/green_64.png")
+      a("alt", "Enabled for this site")
     when 1
-      a("stat", "1"); a("src", "icons/red_64.png"); a("alt", "Disabled for this page")
+      a("stat", "1")
+      a("src", "icons/red_64.png")
+      a("alt", "Disabled for this page")
     else
-      a("stat", "2"); a("src", "icons/grey_64.png"); a("alt", "Disabled for all pages")
+      a("stat", "2")
+      a("src", "icons/grey_64.png")
+      a("alt", "Disabled for all pages")
 
 # tooltip
 $('#copy-button').tooltipsy({
