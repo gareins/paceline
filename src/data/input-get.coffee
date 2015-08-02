@@ -103,15 +103,13 @@ _pl_globals.hostname = null
 #
 # port listeners
 #
-self.port.on 'disable', (() ->
+self.port.on 'disable', () ->
   _pl_globals.observer.disconnect()
   clearInterval _pl_globals.interval
   _pl_globals.inputs = []
-)
 
-self.port.on 'pass', ((pass) ->
-  console.log 'back... ' + pass
+self.port.on 'pass', (pass) ->
   $(_pl_globals.inputs[_pl_globals.inputIdx + 1]).val(pass)
-)
+
   
 self.port.on 'enable', _pl_init

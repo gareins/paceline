@@ -122,6 +122,24 @@ panel.port.on 'generate', ((uname, url) ->
 panel.port.on 'copy', (txt) ->
   re_clipboard.set txt, "text"
 
+change_button_icon = (stat) ->
+  switch stat
+    when 0
+      button.icon =
+        '16': './icons/green_16.png'
+        '32': './icons/green_32.png'
+        '64': './icons/green_64.png'
+    when 1
+      button.icon =
+        '16': './icons/red_16.png'
+        '32': './icons/red_32.png'
+        '64': './icons/red_64.png'
+    else
+      button.icon =
+        '16': './icons/grey_16.png'
+        '32': './icons/grey_32.png'
+        '64': './icons/grey_64.png'
+
 #
 #
 # Getting correct inputs
@@ -161,7 +179,11 @@ function_on_change_url = (t) ->
   url = re_url.URL(t.url).host
   if !url
     return
-  console.log url + " -- " + is_site_disabled(url)
+
+  stat = if is_site_disabled(url) then 1 else 0
+
+  panel.port.emit 'set_page_stat', stat
+  change_button_icon stat
 
 re_tabs.on "ready", function_on_change_url
 re_tabs.on "activate", function_on_change_url
@@ -202,6 +224,8 @@ panel.port.on 'password-change', (pass) ->
 panel.port.on 'change-stat', (stat) ->
   # check if checking was disabled
   store.settings.enable = stat != 2
+  change_button_icon stat
+
   if not store.settings.enable
     return
   else

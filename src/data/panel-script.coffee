@@ -146,7 +146,7 @@ hidden_func = () ->
     if $("#check-hidden").prop('checked') then "password" else "text"
   on_setting_change "hidden", $( this ).prop("checked")
 
-$( "#check-hidden" ).on "change", hidden_func
+$("#check-hidden").on "change", hidden_func
 
 $("#password-input").on "change", () ->
   self.port.emit 'password-change', $( this ).val()
@@ -185,12 +185,9 @@ $("#site-stat").on "click", (() ->
   nxt_stat = ((stat+1)%3)
 
   set_page_stat nxt_stat
+  self.port.emit 'change-stat', nxt_stat
 
-  if nxt_stat != 2
-    self.port.emit 'change-stat', nxt_stat
-
-  img.next().text img.attr("alt")
-  on_setting_change "enable", img.attr("stat") != "2"
+  on_setting_change "enable", nxt_stat
 )
 
 set_page_stat = (stat) ->
@@ -210,6 +207,10 @@ set_page_stat = (stat) ->
       a("stat", "2")
       a("src", "icons/grey_64.png")
       a("alt", "Disabled for all pages")
+
+  img.next().text img.attr("alt")
+
+self.port.on 'set_page_stat', set_page_stat
 
 # tooltip
 $('#copy-button').tooltipsy({
