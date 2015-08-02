@@ -1,6 +1,5 @@
 #
 # TODO:
-# - automatic uname/site fill
 # - green acknowledgment on password change
 #
 # LATER:
@@ -9,6 +8,7 @@
 #
 # BUGS: 
 # - feedly -> twitter...
+# - Nogomania
 #
 
 re_self      = require('sdk/self')
@@ -148,47 +148,42 @@ change_button_icon = (stat) ->
 
 class AutoFiller
   constructor: () ->
-    @pagemod = null
+    @tabs = {}
 
-  start: () ->
-    if @pagemod != null
+  start: (tab) ->
+    if @tabs[tab.id]
+      #if only switch tabs...
       return
 
     console.log "start"
-    @pagemod = re_pagemod.PageMod {
-      include: '*'
-      exclude: [
-        '*.js'
-        '*.css'
-      ]
-      contentScriptWhen: "ready"
+    @tabs[tab.id] = tab.attach
       contentScriptFile: [
         re_self.data.url('jquery.min.js')
         re_self.data.url('input-get.js')
       ]
-      onAttach: (worker) ->
-        worker.port.emit 'enable', re_tabs.activeTab.url
 
-        worker.port.on 'username', (uname, url) ->
-          console.log "gaining for: ", uname
-          get_pass uname, url, (p) ->
-            worker.port.emit 'pass', p
-    }
+    tabs_port = @tabs[tab.id].port
 
-  stop: () ->
-    if @pagemod != null
-      @pagemod.destroy()
+    tabs_port.emit 'enable', tab.url
+    tabs_port.on 'username', (uname, url) ->
+      console.log 'gaining for: ', uname, url
+      get_pass uname, url, (p) ->
+        tabs_port.emit 'pass', p
+
+  stop: (tab) ->
+    if @tabs[tab.id]
+      @tabs[tab.id].destroy()
       console.log "stop"
-    @pagemod = null
 
-  apply_stat: (stat) ->
+    delete @tabs[tab.id]
+
+  apply_stat: (stat, tab) ->
     if stat == 0
-      @.start()
+      @.start tab
     else if stat == 1
-      @.stop()
+      @.stop tab
 
 auto_filler = new AutoFiller()
-auto_filler.start()
 
 #
 # Observer to detect pageload and change icons accordingly
@@ -196,7 +191,7 @@ auto_filler.start()
 
 apply_stat_all = (stat) ->
   change_button_icon stat
-  #auto_filler.apply_stat stat
+  auto_filler.apply_stat stat, re_tabs.activeTab
 
 function_on_change_url = (t) ->
   # check if enabled
