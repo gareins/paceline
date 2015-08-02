@@ -1,12 +1,11 @@
 #
 # TODO:
-# - work only on this page
+# - automatic uname/site fill
+# - green acknowledgment on password change
 #
 # LATER:
-# - green acknowledgment on password change
 # - predefined options?
 # - list of disabled sites?
-# - automatic uname/site fill
 #
 # BUGS: 
 # - feedly -> twitter...
@@ -147,29 +146,57 @@ change_button_icon = (stat) ->
 #
 #
 
-re_pagemod.PageMod
-  include: '*'
-  exclude: [
-    '*.js'
-    '*.css'
-  ]
-  contentScriptWhen: "ready"
-  contentScriptFile: [
-    re_self.data.url('jquery.min.js')
-    re_self.data.url('input-get.js')
-  ]
-  onAttach: (worker) ->
-    worker.port.emit 'enable', re_tabs.activeTab.url
+class AutoFiller
+  constructor: () ->
+    @pagemod = null
 
-    worker.port.on 'username', (uname, url) ->
-      get_pass uname, url, (p) ->
-        worker.port.emit 'pass', p
-    
-    return
+  start: () ->
+    if @pagemod != null
+      return
+
+    console.log "start"
+    @pagemod = re_pagemod.PageMod {
+      include: '*'
+      exclude: [
+        '*.js'
+        '*.css'
+      ]
+      contentScriptWhen: "ready"
+      contentScriptFile: [
+        re_self.data.url('jquery.min.js')
+        re_self.data.url('input-get.js')
+      ]
+      onAttach: (worker) ->
+        worker.port.emit 'enable', re_tabs.activeTab.url
+
+        worker.port.on 'username', (uname, url) ->
+          console.log "gaining for: ", uname
+          get_pass uname, url, (p) ->
+            worker.port.emit 'pass', p
+    }
+
+  stop: () ->
+    if @pagemod != null
+      @pagemod.destroy()
+      console.log "stop"
+    @pagemod = null
+
+  apply_stat: (stat) ->
+    if stat == 0
+      @.start()
+    else if stat == 1
+      @.stop()
+
+auto_filler = new AutoFiller()
+auto_filler.start()
 
 #
 # Observer to detect pageload and change icons accordingly
 #
+
+apply_stat_all = (stat) ->
+  change_button_icon stat
+  #auto_filler.apply_stat stat
 
 function_on_change_url = (t) ->
   # check if enabled
@@ -183,7 +210,7 @@ function_on_change_url = (t) ->
   stat = if is_site_disabled(url) then 1 else 0
 
   panel.port.emit 'set_page_stat', stat
-  change_button_icon stat
+  apply_stat_all stat
 
 re_tabs.on "ready", function_on_change_url
 re_tabs.on "activate", function_on_change_url
@@ -224,7 +251,7 @@ panel.port.on 'password-change', (pass) ->
 panel.port.on 'change-stat', (stat) ->
   # check if checking was disabled
   store.settings.enable = stat != 2
-  change_button_icon stat
+  apply_stat_all stat
 
   if not store.settings.enable
     return

@@ -24,6 +24,8 @@ _pl_init = (url) ->
   if !_pl_chk_url(url)
     return
     
+  console.log "confirm start"
+
   # todo: for gmail hidden password...
   _pl_globals.inputs = $(document)
       .find('input')
@@ -111,5 +113,8 @@ self.port.on 'disable', () ->
 self.port.on 'pass', (pass) ->
   $(_pl_globals.inputs[_pl_globals.inputIdx + 1]).val(pass)
 
-  
 self.port.on 'enable', _pl_init
+
+#self.port.on 'switch', (stat) ->
+#  url = window.location.href
+#  console.log url, stat
