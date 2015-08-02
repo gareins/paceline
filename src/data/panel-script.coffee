@@ -187,7 +187,7 @@ $("#site-stat").on "click", (() ->
   set_page_stat nxt_stat
 
   if nxt_stat != 2
-    self.port.emit 'change-stat', nxt_stat==0
+    self.port.emit 'change-stat', nxt_stat
 
   img.next().text img.attr("alt")
   on_setting_change "enable", img.attr("stat") != "2"

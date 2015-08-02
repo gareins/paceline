@@ -6,6 +6,7 @@
 # - green acknowledgment on password change
 # - predefined options?
 # - list of disabled sites?
+# - automatic uname/site fill
 #
 # BUGS: 
 # - feedly -> twitter...
@@ -21,6 +22,18 @@ re_toggleb   = require('sdk/ui/button/toggle')
 re_storage   = require('sdk/simple-storage')
 re_url       = require('sdk/url')
 re_clipboard = require('sdk/clipboard')
+
+#
+#
+# Set implementation
+#
+#
+
+class MiniSet
+  constructor: ()  -> @data = {}
+  contains: (item) -> return (typeof @data[item] != 'undefined')
+  remove: (item)   -> delete @data[item]
+  add: (item)      -> @data[item] = true
 
 #
 #
@@ -84,7 +97,7 @@ button = re_toggleb.ToggleButton
     '64': './icons/green_64.png'
   onChange: handleChange
 
-panel = re_panel.Panel({
+panel = re_panel.Panel {
   width: 225
   height: 400
   position: button
@@ -99,7 +112,7 @@ panel = re_panel.Panel({
     re_self.data.url('panel-script.js')
   ]
   onHide: handleHide
-})
+}
 
 panel.port.on 'generate', ((uname, url) ->
   get_pass uname, url, (p) ->
@@ -130,20 +143,25 @@ re_pagemod.PageMod
   onAttach: (worker) ->
     worker.port.emit 'enable', re_tabs.activeTab.url
 
-    worker.port.on 'username', ((uname, url) ->
+    worker.port.on 'username', (uname, url) ->
       get_pass uname, url, (p) ->
         worker.port.emit 'pass', p
-    )
+    
     return
 
+#
 # Observer to detect pageload and change icons accordingly
+#
 
 function_on_change_url = (t) ->
-  url = re_url.URL(t.url).host
-  if !url #for non-url pages
+  # check if enabled
+  if not store.settings.enable
     return
 
-  console.log url
+  url = re_url.URL(t.url).host
+  if !url
+    return
+  console.log url + " -- " + is_site_disabled(url)
 
 re_tabs.on "ready", function_on_change_url
 re_tabs.on "activate", function_on_change_url
@@ -168,14 +186,13 @@ default_settings =
 if not store.settings
   store.settings = default_settings
   store.password = ""
-  store.disabled_sites = new Set([])
+  store.disabled_sites = new MiniSet()
 
-panel.port.on 'apply-setting', ((key, value) ->
+panel.port.on 'apply-setting', (key, value) ->
   if not (key of store.settings)
     console.log key + " not in store.settings!!"
     return
   store.settings[key] = value
-)
 
 panel.port.on 'password-change', (pass) ->
   store.password = pass
@@ -183,22 +200,26 @@ panel.port.on 'password-change', (pass) ->
 
 # listener for panel click to change stat
 panel.port.on 'change-stat', (stat) ->
+  # check if checking was disabled
+  store.settings.enable = stat != 2
+  if not store.settings.enable
+    return
+  else
+    stat = stat==0
+
+  # check if url is "real"
   url = re_url.URL(re_tabs.activeTab.url).host
-  if !url #for non-url pages
+  if !url
     return
 
   #save to disabled_sites
-  ds = store.disabled_sites
   if stat
-    ds.delete(url)
+    store.disabled_sites.remove url
   else
-    ds.add(url)
+    store.disabled_sites.add url
 
 is_site_disabled = (site) ->
-  return not (site in store.disabled_sites)
-
-#panel.port.on 'is-site-disabled', (s) ->
-#  panel.port.emit 'site-disabled', is_site_disabled(s)
+  return store.disabled_sites.contains site
 
 #
 #
