@@ -47,6 +47,10 @@ preinit = () ->
   root.pass_label      = $("#gen-pass")
   root.content_error_p = $("#content-error-p")
 
+  root.stat_img_0      = $("img.border-inactive[stat='0']")
+  root.stat_img_1      = $("img.border-inactive[stat='1']")
+  root.stat_img_2      = $("img.border-inactive[stat='2']")
+
   # port handlers
   self.port.on 'pass-returned', on_pass_returned
   self.port.on 'show_first',    init
@@ -65,10 +69,15 @@ preinit = () ->
   $("#check-hidden")     .on 'change' , on_hide_password_change
   $("textarea")          .on 'change' , on_textarea_change
   $("#password-input")   .on 'change' , on_password_input_change
-  $("#site-stat")        .on 'click'  , on_status_image_click
+  $(".border-inactive")  .on 'click'  , on_status_image_click
 
   # other
-  $('#copy-button').tooltipsy {delay:80} # tooltip
+  delay = 75
+
+  $('#copy-button').tooltipsy {delay:delay}
+  stat_img_0       .tooltipsy {delay:delay}
+  stat_img_1       .tooltipsy {delay:delay}
+  stat_img_2       .tooltipsy {delay:delay}
 
 
 
@@ -112,24 +121,23 @@ on_setting_change = (setting, value) ->
 
 # TODO: fix this...
 set_page_stat = (stat) ->
-  img = $("#site-stat")
-  a = (f,s) -> img.attr(f,s)
+  stat_img_0.removeClass()
+  stat_img_1.removeClass()
+  stat_img_2.removeClass()
 
   switch stat
     when 0
-      a("stat", "0")
-      a("src", "icons/green_64.png")
-      a("alt", "Enabled for this site")
+      stat_img_0.addClass("border-active")
+      stat_img_1.addClass("border-inactive")
+      stat_img_2.addClass("border-inactive")
     when 1
-      a("stat", "1")
-      a("src", "icons/red_64.png")
-      a("alt", "Disabled for this page")
-    else
-      a("stat", "2")
-      a("src", "icons/grey_64.png")
-      a("alt", "Disabled for all pages")
-
-  img.next().text img.attr("alt")
+      stat_img_0.addClass("border-inactive")
+      stat_img_1.addClass("border-active")
+      stat_img_2.addClass("border-inactive")
+    when 2
+      stat_img_0.addClass("border-inactive")
+      stat_img_1.addClass("border-inactive")
+      stat_img_2.addClass("border-active")
 
 # initialization sequence
 init = (pass, settings) ->
@@ -209,6 +217,7 @@ on_password_input_change = () ->
 on_textarea_change = () ->
   el = $( this )
   allowed = ["site.url", "uname", "pass"]
+
   txt = el.val()
   re = /\[([^\]]+)\]/g
 
@@ -228,15 +237,15 @@ on_textarea_change = () ->
 
   update_scrollbar()
 
-#TODO: fix this
 on_status_image_click = () ->
   img = $( this )
-  stat = img.attr("stat")
-  nxt_stat = ((stat+1)%3)
+  stat = parseInt(img.attr "stat")
 
-  set_page_stat nxt_stat
-  self.port.emit 'change-stat', nxt_stat
+  if img.hasClass("border-active")
+    return #already picked...
 
+  set_page_stat stat
+  self.port.emit 'change-stat', stat
   on_setting_change "enable", nxt_stat
 
 

@@ -2,8 +2,8 @@
 # TODO:
 # - green acknowledgment on password change
 # - bigger slide ud buttons
-# - three images downlow with tooltips
 # - refactor this
+# - fix start/stop
 #
 # LATER:
 # - predefined options?

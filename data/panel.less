@@ -1,6 +1,7 @@
 // constants:
-@color-dark:  #19171a;
-@color-light: #a5a5a5;
+@color-dark:   #19171a;
+@color-middle: #444444;
+@color-light:  #a5a5a5;
 
 // mixins:
 .linear-gradient-back(@alpha) {
@@ -29,14 +30,7 @@ html, body {
   height: 350px;
   position: relative;
 }
-#footer {
-  color: @color-dark;
-  height: 35px;
-  position: relative;
-  padding-top: 15px;
 
-  background: linear-gradient( 0deg, @color-light, @color-light 75%, @color-dark 95%);
-}
 .content div {
   background-color: @color-dark;
 }
@@ -129,21 +123,32 @@ hr {
   }
 }
 
-#site-stat {
-  display:inline;
-  vertical-align:middle;
+.border-active {
+  border: 2px solid @color-dark;
+}
+.border-inactive {
   border: 2px solid @color-light;
-  &:hover {
-    cursor: pointer;
-    border: 2px solid @color-dark;
-    border-radius: 2px;
-  }
 }
 
-#footer span {
-  opacity: 0.4;
-  &:hover {
-    opacity: 1;
+#footer {
+  color: @color-dark;
+  height: 35px;
+  position: relative;
+  padding-top: 15px;
+  text-align: center;
+  background: linear-gradient(0deg, @color-light, @color-light 75%, @color-dark 95%);
+  
+  img {
+    margin: 0 6px 0 6px;
+    width: 26px;
+    height: 26px;
+    vertical-align:middle;
+
+    &:hover {
+      cursor: pointer;
+      border: 2px solid @color-middle;
+      border-radius: 2px;
+    }
   }
 }
 
