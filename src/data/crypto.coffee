@@ -1,4 +1,4 @@
-self.port.on "hash", (content, hash, bit2st) ->
+self.port.on "hash", (content, hash, bit2str) ->
   algorithm = null
   encoding = null
 

@@ -1,5 +1,5 @@
 # click handler for "help" alert link
-$( "#help-alert" ).on "click", (() ->
+$( "#help-alert" ).on "click", () ->
   alert """
     Help setting up paceline.
 
@@ -30,57 +30,111 @@ $( "#help-alert" ).on "click", (() ->
     Currently supported website data is its url, but more could be added
     in future.
   """
-)
 
-# fill password box on pass-returned event
-self.port.on 'pass-returned', ((pass) ->
-  $("#gen-pass").text(pass)
-)
 
-# send password info on username/webpage change
-generate_send = () ->
-  uname = $("#uname-input").val()
-  site  = $("#site-input").val()
-  self.port.emit 'generate', uname, site
+###################
+#                 #
+# runs on startup #
+#                 #
+###################
 
-# slide divs up-down when requested
-slide_up_down = ((el, length) ->
+preinit = () ->
+  root = exports ? this
+  # globals
+  root.uname_input     = $("#uname-input")
+  root.site_input      = $("#site-input")
+  root.content_div     = $("#content")
+  root.pass_label      = $("#gen-pass")
+  root.content_error_p = $("#content-error-p")
+
+  # port handlers
+  self.port.on 'pass-returned', on_pass_returned
+  self.port.on 'show_first',    init
+  self.port.on 'set_page_stat', set_page_stat
+
+  # click handlers
+  $('#copy-button')      .on 'click'  , on_copy_click
+  $('.hr')               .on 'click'  , on_slide_ud_click
+  $('#uname-input')      .on 'keyup'  , generate_send # compute password on any
+  $('#site-input')       .on 'keyup'  , generate_send # keyup event for site/uname
+  $('textarea')          .on 'keydown', loose_focus_textarea_on_keyup
+  $('#mode-select')      .on 'change' , on_simple_setting_change
+  $('#length-select')    .on 'change' , on_simple_setting_change
+  $('#bit2string-select').on 'change' , on_simple_setting_change
+  $("#check-save")       .on 'click'  , on_save_password_checkbox_click
+  $("#check-hidden")     .on 'change' , on_hide_password_change
+  $("textarea")          .on 'change' , on_textarea_change
+  $("#password-input")   .on 'change' , on_password_input_change
+  $("#site-stat")        .on 'click'  , on_status_image_click
+
+  # other
+  $('#copy-button').tooltipsy {delay:80} # tooltip
+
+
+
+##################
+#                #
+# Helper methods #
+#                #
+##################
+
+update_scrollbar = () ->
+  content_div.perfectScrollbar('update')
+
+# slide divs up-down helper
+slide_up_down = (el, length) ->
   if el.is(":hidden")
     el.show()
     el.animate(
       {"margin-bottom": "0px", "opacity": 1},
       length,
-      () -> $('#content').perfectScrollbar('update')
+      update_scrollbar
     )
-
   else
     el.animate(
       {"margin-bottom": ("-" + el.css "height"), "opacity": 0},
       length,
       () ->
         el.hide()
-        $('#content').perfectScrollbar('update')
+        update_scrollbar()
     )
-)
 
-# on copy click
-$('#copy-button').on 'click', () ->
-  self.port.emit 'copy', $( this ).prev().text()
+# send password info on username/webpage change
+generate_send = () ->
+  uname = uname_input.val()
+  site  = site_input.val()
+  self.port.emit 'generate', uname, site
 
-# on click -> slide up/down
-$( '.hr' ).on "click", () ->
-  slide_up_down $(this).parent().next(), 200
+# on settings change function handler
+on_setting_change = (setting, value) ->
+  self.port.emit 'apply-setting', setting, value
+  generate_send()
 
-# for username/website input, keyup listeners
-$("#uname-input").on "keyup", generate_send
-$("#site-input") .on "keyup", generate_send
+# TODO: fix this...
+set_page_stat = (stat) ->
+  img = $("#site-stat")
+  a = (f,s) -> img.attr(f,s)
+
+  switch stat
+    when 0
+      a("stat", "0")
+      a("src", "icons/green_64.png")
+      a("alt", "Enabled for this site")
+    when 1
+      a("stat", "1")
+      a("src", "icons/red_64.png")
+      a("alt", "Disabled for this page")
+    else
+      a("stat", "2")
+      a("src", "icons/grey_64.png")
+      a("alt", "Disabled for all pages")
+
+  img.next().text img.attr("alt")
 
 # initialization sequence
-self.port.on 'show_first', ((pass, settings) ->
+init = (pass, settings) ->
   #init scrollbar
-  $('#content').perfectScrollbar({
-    suppressScrollX: true
-  })
+  content_div.perfectScrollbar {suppressScrollX: true}
 
   # fill settings
   $('#check-hidden')     .attr 'checked', settings.hidden
@@ -112,48 +166,47 @@ self.port.on 'show_first', ((pass, settings) ->
 
   # hide content error paragraph
   $("#content-error-p").hide()
-  hidden_func()
-)
+  on_hide_password_change()
 
-#loose focus on enter key
-$("textarea").on "keydown", (e) ->
-  if e.keyCode == 13
+##################
+#                #
+# Event Handlers #
+#                #
+##################
+
+on_copy_click = () ->
+  self.port.emit 'copy', $( this ).prev().text()
+
+on_slide_ud_click = () ->
+  slide_up_down $(this).parent().next(), 200
+
+on_pass_returned = (pass) ->
+  pass_label.text(pass) # fill password box
+
+loose_focus_textarea_on_keyup = (e) ->
+  if e.keyCode == 13 #if key==Enter
     e.preventDefault()
     $(':focus').blur()
 
-# on settings change function handler
-on_setting_change = (setting, value) ->
-  self.port.emit 'apply-setting', setting, value
-  generate_send()
-
-# for couple of simple settings change
 on_simple_setting_change = () ->
   el = $( this )
   on_setting_change el.attr("name"), el.val()
 
-# saving settings on change: imple versions
-$("#mode-select").change       on_simple_setting_change
-$("#length-select").change     on_simple_setting_change
-$("#bit2string-select").change on_simple_setting_change
-
-# handler for "save password" checkbox
-$("#check-save").on "click", () ->
+on_save_password_checkbox_click = () ->
   on_setting_change "save", $( this ).prop("checked")
 
-# click handler for "hide password" checkbox
-hidden_func = () ->
-  $("#password-input").attr 'type',
+on_hide_password_change = () ->
+  $("#password-input").attr(
+    'type',
     if $("#check-hidden").prop('checked') then "password" else "text"
+  )
   on_setting_change "hidden", $( this ).prop("checked")
 
-$("#check-hidden").on "change", hidden_func
-
-$("#password-input").on "change", () ->
+on_password_input_change = () ->
   self.port.emit 'password-change', $( this ).val()
   generate_send()
 
-# change handler for "content" text field
-$("textarea").change (() ->
+on_textarea_change = () ->
   el = $( this )
   allowed = ["site.url", "uname", "pass"]
   txt = el.val()
@@ -166,20 +219,17 @@ $("textarea").change (() ->
       if m not in allowed
         found = m
 
-  cep = $("#content-error-p")
-
   if found
-    cep.show()
-    cep.children().eq(1).text("Error: " + found)
+    content_error_p.show()
+    content_error_p.children().eq(1).text("Error: " + found)
   else
-    cep.hide()
+    content_error_p.hide()
     on_setting_change "content", txt
 
-  $('#content').perfectScrollbar('update')
-)
+  update_scrollbar()
 
-# handle for image click
-$("#site-stat").on "click", (() ->
+#TODO: fix this
+on_status_image_click = () ->
   img = $( this )
   stat = img.attr("stat")
   nxt_stat = ((stat+1)%3)
@@ -188,31 +238,8 @@ $("#site-stat").on "click", (() ->
   self.port.emit 'change-stat', nxt_stat
 
   on_setting_change "enable", nxt_stat
-)
 
-set_page_stat = (stat) ->
-  img = $("#site-stat")
-  a = (f,s) -> img.attr(f,s)
 
-  switch stat
-    when 0
-      a("stat", "0")
-      a("src", "icons/green_64.png")
-      a("alt", "Enabled for this site")
-    when 1
-      a("stat", "1")
-      a("src", "icons/red_64.png")
-      a("alt", "Disabled for this page")
-    else
-      a("stat", "2")
-      a("src", "icons/grey_64.png")
-      a("alt", "Disabled for all pages")
-
-  img.next().text img.attr("alt")
-
-self.port.on 'set_page_stat', set_page_stat
-
-# tooltip
-$('#copy-button').tooltipsy({
-  delay:80
-})
+# # # # # # # # # # #
+preinit() # Preinit #
+# # # # # # # # # # #
