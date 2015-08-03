@@ -54,14 +54,20 @@ module.exports = (grunt) ->
         dest: 'build/data'
         ext: '.js'
 
+    less:
+      development:
+        files:
+          'build/data/panel.css': 'data/panel.less'
+
   # Load the plugin that provides the "jshint" task.
   grunt.loadNpmTasks 'grunt-contrib-jshint'
   grunt.loadNpmTasks 'grunt-contrib-watch'
   grunt.loadNpmTasks 'grunt-coffeelint'
   grunt.loadNpmTasks 'grunt-contrib-symlink'
   grunt.loadNpmTasks 'grunt-contrib-coffee'
+  grunt.loadNpmTasks 'grunt-contrib-less'
 
   # Default task(s).
-  grunt.registerTask 'default', [ 'symlink', 'coffee' ]
+  grunt.registerTask 'default', [ 'symlink', 'coffee', 'less' ]
 
   return

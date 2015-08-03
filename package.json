@@ -11,15 +11,13 @@
   "scripts": {
     "preview": "(cd build ; jpm run -b /usr/bin/firefox)",
     "watch": "grunt watch",
-
     "icons": "./data/scripts/icons_generator.sh",
     "deps": "./data/scripts/download_scripts.sh",
     "clean": "rm -rf build",
     "buildall": "(npm run clean; npm run deps; npm run icons; grunt)"
   },
   "license": "MPL-2.0",
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
     "coffee-script": "^1.9.3",
     "coffeelint": "^1.10.1",
@@ -27,7 +25,9 @@
     "grunt-coffeelint": "0.0.13",
     "grunt-contrib-coffee": "^0.13.0",
     "grunt-contrib-jshint": "^0.11.2",
+    "grunt-contrib-less": "^1.0.1",
     "grunt-contrib-symlink": "^0.3.0",
-    "grunt-contrib-watch": "^0.6.1"
+    "grunt-contrib-watch": "^0.6.1",
+    "less": "^2.5.1"
   }
 }

@@ -1,0 +1,165 @@
+// constants:
+@color-dark:  #19171a;
+@color-light: #a5a5a5;
+
+// mixins:
+.linear-gradient-back(@alpha) {
+  background: linear-gradient(to bottom, rgba(255,255,255,@alpha) 0%, rgba(255,255,255,@alpha) 100%), url(copy.png) repeat 0 0;
+}
+
+
+h1 {
+  margin-top: 5px;
+  font-size: 20px;
+  margin-left: 4px;
+  clear: both;
+}
+html, body {
+  height: 100%;
+  padding: 0;
+  margin: 0;
+
+  background-color: @color-dark;
+  color: @color-light;
+  font-size: 12px;
+}
+
+#content {
+  padding: 0 10px 0 10px;
+  height: 350px;
+  position: relative;
+}
+#footer {
+  color: @color-dark;
+  height: 35px;
+  position: relative;
+  padding-top: 15px;
+
+  background: linear-gradient( 0deg, @color-light, @color-light 75%, @color-dark 95%);
+}
+.content div {
+  background-color: @color-dark;
+}
+
+.hideable {
+  overflow: auto;
+}
+
+.heading-div {
+  position: relative;
+  width: 100%;
+}
+
+#password-input {
+  width: 160px;
+}
+.checkbox {
+  font-size: 11px;
+}
+.key {
+  width: 65px;
+  float: left;
+}
+.center {
+  margin: 0 auto;
+  width: 180px;
+  text-align: center;
+}
+.inpt {
+  width: 120px;
+  text-decoration: none;
+  border-radius: 0px;
+  border: 0;
+  padding-left: 5px;
+}
+fieldset {
+  border-style: solid;
+  border-color: @color-light;
+  font-size: 10px;
+  padding-top: 6px; /*ugly way to center image with text*/
+}
+#copy-button {
+  background: url(copy.png) repeat;
+  width: 16px;
+  height: 16px;
+  margin: -2px 5px 0 0;
+  float: right;
+  padding: 0 0 0 16px; /*TODO: better fix for no outline*/
+  border: none;
+  cursor: pointer;
+  &:hover {
+    .linear-gradient-back(0.2);
+  }
+  &:active {
+    .linear-gradient-back(0.3);
+  }
+}
+
+.hr {
+  margin-bottom: 10px;
+  margin-top: -10px;
+  text-align: center;
+  border-style: solid;
+  border-width: 1px;
+  border-color: transparent;
+  border-radius: 2px;
+  &:hover {
+    border-color: @color-light;
+    cursor: pointer;
+  }
+  span {
+    -moz-user-select: none;
+  }
+}
+
+hr {
+  width: 43%;
+}
+.hrleft {
+  float: left;
+}
+.hrright {
+  float: right;
+}
+
+#help-alert {
+  color: @color-light;
+  &:hover {
+    cursor: help;
+  }
+}
+
+#site-stat {
+  display:inline;
+  vertical-align:middle;
+  border: 2px solid @color-light;
+  &:hover {
+    cursor: pointer;
+    border: 2px solid @color-dark;
+    border-radius: 2px;
+  }
+}
+
+#footer span {
+  opacity: 0.4;
+  &:hover {
+    opacity: 1;
+  }
+}
+
+#content-error-p {
+  font-size: 10px;
+  margin-top: -10px;
+}
+
+#gen-pass {
+  font-family: monospace;
+}
+
+.tooltipsy {
+  padding: 3px;
+  color: @color-light;
+  background-color: @color-dark;
+  border: 1px solid @color-light;
+  border-radius: 2px;
+}
