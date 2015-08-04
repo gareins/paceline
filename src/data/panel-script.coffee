@@ -58,7 +58,7 @@ preinit = () ->
 
   # click handlers
   $('#copy-button')      .on 'click'  , on_copy_click
-  $('.hr')               .on 'click'  , on_slide_ud_click
+  $('.heading-div')      .on 'click'  , on_slide_ud_click
   $('#uname-input')      .on 'keyup'  , generate_send # compute password on any
   $('#site-input')       .on 'keyup'  , generate_send # keyup event for site/uname
   $('textarea')          .on 'keydown', loose_focus_textarea_on_keyup
@@ -167,7 +167,7 @@ init = (pass, settings) ->
       if !(pass.length == 0 && h.text() == "Password") &&
          !(pass.length > 0  && h.text() == "Generate")
 
-        slide_up_down h.parent().next(), 10
+        slide_up_down h.parent().parent().next(), 10
 
   # generate password for empty uname/page
   self.port.emit 'generate', "", ""
@@ -175,6 +175,8 @@ init = (pass, settings) ->
   # hide content error paragraph
   $("#content-error-p").hide()
   on_hide_password_change()
+
+
 
 ##################
 #                #
@@ -186,7 +188,7 @@ on_copy_click = () ->
   self.port.emit 'copy', $( this ).prev().text()
 
 on_slide_ud_click = () ->
-  slide_up_down $(this).parent().next(), 200
+  slide_up_down $(this).next(), 200
 
 on_pass_returned = (pass) ->
   pass_label.text(pass) # fill password box

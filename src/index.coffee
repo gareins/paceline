@@ -1,7 +1,5 @@
 #
 # TODO:
-# - green acknowledgment on password change
-# - bigger slide ud buttons
 # - refactor this
 # - fix start/stop
 #
@@ -226,7 +224,7 @@ default_settings =
   'save': false
   'mode': 'sha1'
   'length': '12'
-  'content': 'ozbo[site.url][uname][pass]'
+  'content': '[site.url][uname][pass]'
   'bit2str': 'b64'
   'enable': true
 
