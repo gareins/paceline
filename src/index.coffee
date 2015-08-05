@@ -1,6 +1,5 @@
 #
 # TODO:
-# - refactor this
 # - fix start/stop
 #
 # LATER:
@@ -80,14 +79,6 @@ class Crypto
 crypto = new Crypto()
 
 #
-# Wraps all apply stat functions to change it globally
-#
-
-apply_stat_all = (stat) ->
-  change_button_icon stat
-  auto_filler.apply_stat stat, re_tabs.activeTab
-
-#
 #
 # Getting correct inputs
 # and reading/filling them
@@ -143,19 +134,6 @@ Storage = {}
 Storage =
   _s: re_storage.storage
 
-  handle_first_boot: () ->
-    if not Storage._s.settings
-      Storage._s.settings =
-        'hidden': false
-        'save': false
-        'mode': 'sha1'
-        'length': '12'
-        'content': '[site.url][uname][pass]'
-        'bit2str': 'b64'
-        'enable': true
-      Storage._s.password = ""
-      Storage._s.disabled_sites = new MiniSet()
-
   is_site_disabled: (site) ->
     return Storage._s.disabled_sites.contains site
 
@@ -183,15 +161,25 @@ Storage =
   get_settings: () ->
     Storage._s.settings
 
-Storage.handle_first_boot()
+# handle first boot
+if not Storage._s.settings
+  Storage._s.settings =
+    'hidden': false
+    'save': false
+    'mode': 'sha1'
+    'length': '12'
+    'content': '[site.url][uname][pass]'
+    'bit2str': 'b64'
+    'enable': true
+  Storage._s.password = ""
+  Storage._s.disabled_sites = new MiniSet()
 
 #
 #
-# Panel and button stuff :)
+# Panel and button objects
 #
 #
 
-# Button
 button = re_toggleb.ToggleButton
   id: 'pl_button'
   label: 'Paceline'
@@ -201,7 +189,6 @@ button = re_toggleb.ToggleButton
     '64': './icons/green_64.png'
   onChange: (state) -> if state.checked then panel.show()
 
-# Panel
 panel = re_panel.Panel
   width: 225
   height: 400
@@ -219,10 +206,18 @@ panel = re_panel.Panel
   onHide: () -> button.state 'window', {checked: false}
 
 #
-# Helper functions
+#
+# Function called on status change
+# 
 #
 
-change_button_icon = (stat) ->
+apply_stat = (stat, url) ->
+  # Set all variables
+  Storage.set_setting "enable", (stat != 2)      # store in storage
+  panel.port.emit 'set_page_stat', stat          # inform panel
+  auto_filler.apply_stat stat, re_tabs.activeTab # inform page auto_filler
+
+  # change button accordingly
   switch stat
     when 0
       button.icon =
@@ -240,20 +235,25 @@ change_button_icon = (stat) ->
         '32': './icons/grey_32.png'
         '64': './icons/grey_64.png'
 
-#
-# Start listening for events
-#
+  # check if enabled
+  if not Storage.is_enabled()
+    return
 
-init = () ->
-  panel.port.on 'generate',        on_panel_generate
-  panel.port.on 'copy',            on_panel_copy
-  panel.port.on 'apply-setting',   Storage.set_setting
-  panel.port.on 'password-change', on_panel_password_change
-  panel.port.on 'change-stat',     on_panel_change_stat
+  # check if url is "real"
+  if !url
+    return
 
+  # enable/disable site
+  if stat == 0
+    Storage.enable_site(url)
+  else if stat == 1
+    Storage.disable_site(url)
+
+#
 #
 # Event listeners
 # 
+#
 
 on_panel_generate = (uname, url) ->
   panel_port = panel.port
@@ -261,7 +261,7 @@ on_panel_generate = (uname, url) ->
     panel_port.emit 'pass-returned', p
 
 on_panel_copy = (txt) ->
-  # set text to clipboard on copy
+  # send text to clipboard on copy
   re_clipboard.set txt, "text"
 
 on_panel_password_change = (pass) ->
@@ -269,47 +269,27 @@ on_panel_password_change = (pass) ->
   panel.port.emit 'pass-returned', ""
 
 on_panel_change_stat = (stat) ->
-  # check if checking was disabled
-  Storage.set_setting "enable", (stat != 2)
-  apply_stat_all stat
+  apply_stat stat, re_url.URL(re_tabs.activeTab.url).host
 
-  if not Storage.is_enabled()
-    return
-  stat = stat==0
-  # check if url is "real"
-  url = re_url.URL(re_tabs.activeTab.url).host
-  if !url
-    return
-  #save to disabled_sites
-  if stat then Storage.enable_site(url) else Storage.disable_site(url)
-
-#
-# Start panel internal init procedure
-#
-
-start = () ->
-  panel.port.emit 'show_first', Storage.get_password(), Storage.get_settings()
-
-# TODO: change
-function_on_change_url = (t) ->
-  # check if enabled
-  if not Storage.is_enabled()
-    return
-
+on_change_tab = (t) ->
   url = re_url.URL(t.url).host
-  if !url
-    return
-
   stat = if Storage.is_site_disabled(url) then 1 else 0
+  apply_stat stat, url
 
-  panel.port.emit 'set_page_stat', stat
-  apply_stat_all stat
+#
+#
+# Start listening for events
+#
+#
 
+panel.port.on 'apply-setting',   Storage.set_setting
+panel.port.on 'generate',        on_panel_generate
+panel.port.on 'copy',            on_panel_copy
+panel.port.on 'password-change', on_panel_password_change
+panel.port.on 'change-stat',     on_panel_change_stat
+re_tabs.on    'ready',           on_change_tab
+re_tabs.on    'activate',        on_change_tab
 
+# Inform panel to initialize itself!
+panel.port.emit 'show_first', Storage.get_password(), Storage.get_settings()
 
-
-re_tabs.on "ready", function_on_change_url
-re_tabs.on "activate", function_on_change_url
-
-init()
-start()

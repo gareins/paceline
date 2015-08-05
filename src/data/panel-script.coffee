@@ -119,7 +119,7 @@ on_setting_change = (setting, value) ->
   self.port.emit 'apply-setting', setting, value
   generate_send()
 
-# TODO: fix this...
+# Sets icon border accordingly to status
 set_page_stat = (stat) ->
   stat_img_0.removeClass()
   stat_img_1.removeClass()
