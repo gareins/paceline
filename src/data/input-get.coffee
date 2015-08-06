@@ -6,15 +6,19 @@
 
 # check url for js/css
 _pl_chk_url = (url1) ->
+  # I don't remember why this check is done...
   if !window.location
     return false
-    
+
+  # Filter css and js sites // TODO: probably not neaded
   url2 = window.location.href
   if url2.match(new RegExp('.*.(js|css)'))
     return false
 
-  console.log window.location.href
-    
+  # Filter about:xx firefox pages
+  if url2.indexOf("about:") == 0
+    return false
+
   a_url = document.createElement('a')
   a_url.href = url1
   url1 = a_url.hostname
@@ -22,7 +26,7 @@ _pl_chk_url = (url1) ->
   a_url = document.createElement('a')
   a_url.href = url2
   url2 = a_url.hostname
-  
+
   # check if document not from another site (like add or something)
   if url1 != url2
     return false
@@ -33,7 +37,7 @@ _pl_chk_url = (url1) ->
 _pl_init = (url) ->
   if !_pl_chk_url(url)
     return
-
+  
   # Find all inputs of certain type
   _pl_globals.inputs = $(document)
       .find('input')

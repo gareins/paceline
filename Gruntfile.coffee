@@ -32,13 +32,6 @@ module.exports = (grunt) ->
             src: ['panel.html', 'copy.png']
             dest: 'build/data'
           },
-          {
-            expand: true
-            overwrite: true
-            cwd: '.'
-            src: 'node_modules'
-            dest: 'build/'
-          }
         ]
 
     coffee:

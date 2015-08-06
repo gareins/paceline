@@ -1,6 +1,6 @@
 #
 # TODO:
-# - fix start/stop
+# - fix quick typing at page load
 #
 # LATER:
 # - predefined options?
@@ -88,13 +88,16 @@ crypto = new Crypto()
 class AutoFiller
   constructor: () ->
     @tabs = {}
+    @active_tab = null
 
   start: (tab) ->
-    if @tabs[tab.id]
-      #if only switch tabs...
+    old_active_tab = @active_tab
+    @active_tab = re_tabs.activeTab.id
+
+    # If tab changed -> do not attach, because already running
+    if old_active_tab != @active_tab
       return
 
-    console.log "start"
     @tabs[tab.id] = tab.attach
       contentScriptFile: [
         re_self.data.url('jquery.min.js')
@@ -105,14 +108,12 @@ class AutoFiller
 
     tabs_port.emit 'enable', tab.url
     tabs_port.on 'username', (uname, url) ->
-      console.log 'gaining for: ', uname, url
       crypto.get_pass uname, url, (p) ->
         tabs_port.emit 'pass', p
 
   stop: (tab) ->
     if @tabs[tab.id]
       @tabs[tab.id].destroy()
-      console.log "stop"
 
     delete @tabs[tab.id]
 
@@ -147,7 +148,7 @@ Storage =
     Storage._s.settings.enable
 
   set_password: (p) ->
-    Storage._s.password = b
+    Storage._s.password = p
 
   set_setting: (key, value) ->
     if not (key of Storage._s.settings)
@@ -211,7 +212,7 @@ panel = re_panel.Panel
 # 
 #
 
-apply_stat = (stat, url) ->
+apply_status_wrapper = (stat, url) ->
   # Set all variables
   Storage.set_setting "enable", (stat != 2)      # store in storage
   panel.port.emit 'set_page_stat', stat          # inform panel
@@ -269,12 +270,12 @@ on_panel_password_change = (pass) ->
   panel.port.emit 'pass-returned', ""
 
 on_panel_change_stat = (stat) ->
-  apply_stat stat, re_url.URL(re_tabs.activeTab.url).host
+  apply_status_wrapper stat, re_url.URL(re_tabs.activeTab.url).host
 
 on_change_tab = (t) ->
   url = re_url.URL(t.url).host
   stat = if Storage.is_site_disabled(url) then 1 else 0
-  apply_stat stat, url
+  apply_status_wrapper stat, url
 
 #
 #
