@@ -45,14 +45,15 @@ _pl_init = (url) ->
   
   # Configure and start observer
   observer = new MutationObserver _pl_body_change_listener
-  target = ($ "body").get(0)
+  target = $("body").get(0)
   config =
     childList: true
     subtree: true
   observer.observe target, config
 
   # Takes all inputs and "figures out" the right one
-  _pl_choose_input()
+  _pl_choose_input true
+
   # Check for change in input field every 0.6 second
   interval = setInterval _pl_choose_input, 600
 
@@ -84,8 +85,18 @@ _pl_choose_input = () ->
     no2 = $(inputs[i+1])
     no3 = $(inputs[i+2])
 
+    ## first is not password
     bool1 = (no1.attr("type") != 'password') && (no1.is(":visible"))
+
+    ## second is password
     bool2 = (no2.attr("type") == 'password') && (no2.is(":visible"))
+
+    # if password in #id -> also good (#FIX 51)
+    if bool2 == false && (no2.is ':visible') && (no2.attr 'id')
+      no2_id = no2.attr('id').toLowerCase()
+      bool2 = (no2_id.indexOf('password') > -1) && (no2.is(":visible"))
+
+    ## third is also password => this is probably registation form
     bool3 = (i+2 == inputs.length) ||
             (no3.is ":hidden") ||
             (no3.attr("type") != 'password')
@@ -97,13 +108,17 @@ _pl_choose_input = () ->
   if unameIdx < 0
     return
 
-  # both fields are saved into globals
+  # Check if we already generated password for this username (#FIX 51)
   uname = no1.val()
   if uname != _pl_globals.uname && uname.length > 0
+    # both fields are saved into globals
     _pl_globals.uname = uname
     _pl_globals.inputIdx = unameIdx
 
-    self.port.emit "username", uname, _pl_globals.hostname
+    # If first time, do not generate password (#FIX 51)
+    if arguments.length == 0
+      # Generate password
+      self.port.emit "username", uname, _pl_globals.hostname
  
   return
 
@@ -134,6 +149,28 @@ self.port.on 'disable', () ->
   _pl_globals.inputs = []
 
 self.port.on 'pass', (pass) ->
-  $(_pl_globals.inputs[_pl_globals.inputIdx + 1]).val(pass)
+  inpt = $(_pl_globals.inputs[_pl_globals.inputIdx + 1])
+  # some password fields are not type=password, so check for type (#FIX 51)
+  if inpt.attr('type') != 'password'
+    inpt.attr('type', 'password')
+
+  on_generated_password_change inpt
+  inpt.val(pass)
 
 self.port.on 'enable', _pl_init
+
+#############################
+#                           #
+# Password change animation #
+#                           #
+#############################
+
+on_generated_password_change = (inpt) ->
+  end_opacity = inpt.css('opacity')
+
+  inpt.css('opacity': 0)
+  inpt.animate(
+    {opacity: end_opacity},
+    120,
+    () -> return
+  )

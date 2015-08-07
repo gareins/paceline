@@ -8,8 +8,11 @@
 #
 # BUGS: 
 # - feedly -> twitter...
-# - Nogomania
 #
+# FIX
+#  51: Site nogomania.com had default value for username
+#      and also password field turned into type=password
+#      only after keystrokes.
 
 re_self      = require('sdk/self')
 re_tabs      = require('sdk/tabs')
@@ -103,6 +106,11 @@ class AutoFiller
         re_self.data.url('jquery.min.js')
         re_self.data.url('input-get.js')
       ]
+
+    # DEBUG: Check if attachment success
+    if typeof @tabs[tab.id] == 'undefined'
+      console.log "Why not attached ??"
+      return
 
     tabs_port = @tabs[tab.id].port
 
