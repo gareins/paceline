@@ -286,12 +286,14 @@ on_change_tab = (t) ->
   url = re_url.URL(t.url).host
   stat = if Storage.is_site_disabled(url) then 1 else 0
   apply_status_wrapper stat, url
+  
+  # Using getFavicon was way too slow, t.favicon
+  # on the other side was unreliable and deprecated.
+  # Thus, I am using this workaround. Thanks, google.
 
-  # Sending new favicon and url to panel //deprecated on MDN
-  getFavicon(t).then (favicon) ->
-    # TODO: check if still same tab. Also: why not working???
-    console.log "here:", favicon
-    panel.port.emit 'tab-data', favicon, url
+  # Sending new favicon and url to panel
+  favicon = "http://www.google.com/s2/favicons?domain=" + url
+  panel.port.emit 'tab-data', favicon, url
 
 #
 #
