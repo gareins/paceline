@@ -98,6 +98,24 @@ fieldset {
   font-size: 10px;
   padding-top: 6px; /*ugly way to center image with text*/
 }
+
+#site-input-img {
+  position: absolute; 
+  right: 16px; 
+  top: 1px; 
+  cursor: pointer;
+  opacity: 0.7;
+
+  img {
+    width: 14px;
+    height: 14px;
+  }
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
 #copy-button {
   background: url(copy.png) repeat;
   width: 16px;

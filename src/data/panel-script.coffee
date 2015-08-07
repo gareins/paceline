@@ -46,6 +46,7 @@ preinit = () ->
   root.content_div     = $("#content")
   root.pass_label      = $("#gen-pass")
   root.content_error_p = $("#content-error-p")
+  root.site_input_img  = $('#site-input-img img')
 
   root.stat_img_0      = $("img.border-inactive[stat='0']")
   root.stat_img_1      = $("img.border-inactive[stat='1']")
@@ -53,8 +54,9 @@ preinit = () ->
 
   # port handlers
   self.port.on 'pass-returned', on_pass_returned
-  self.port.on 'show_first',    init
-  self.port.on 'set_page_stat', set_page_stat
+  self.port.on 'show-first',    init
+  self.port.on 'set-page-stat', set_page_stat
+  self.port.on 'tab-data',      set_site_input
 
   # click handlers
   $('#copy-button')      .on 'click'  , on_copy_click
@@ -65,11 +67,12 @@ preinit = () ->
   $('#mode-select')      .on 'change' , on_simple_setting_change
   $('#length-select')    .on 'change' , on_simple_setting_change
   $('#bit2string-select').on 'change' , on_simple_setting_change
-  $("#check-save")       .on 'click'  , on_save_password_checkbox_click
-  $("#check-hidden")     .on 'change' , on_hide_password_change
-  $("textarea")          .on 'change' , on_textarea_change
-  $("#password-input")   .on 'change' , on_password_input_change
-  $(".border-inactive")  .on 'click'  , on_status_image_click
+  $('#check-save')       .on 'click'  , on_save_password_checkbox_click
+  $('#check-hidden')     .on 'change' , on_hide_password_change
+  $('textarea')          .on 'change' , on_textarea_change
+  $('#password-input')   .on 'change' , on_password_input_change
+  $('.border-inactive')  .on 'click'  , on_status_image_click
+  $('#site-input-img')   .on 'click'  , on_site_img_click
 
   # other
   delay = 75
@@ -151,7 +154,7 @@ init = (pass, settings) ->
   $('#length-select')    .val settings.length
   $('#text-content')     .val settings.content
   $('#bit2string-select').val settings.bit2str
-  $("#password-input")   .val pass
+  $('#password-input')   .val pass
 
   # set page_stat
   if !settings.enable
@@ -192,6 +195,13 @@ on_slide_ud_click = () ->
 
 on_pass_returned = (pass) ->
   pass_label.text(pass) # fill password box
+
+on_site_img_click = () ->
+  site_input.val(site_input_img.attr('alt'))
+
+set_site_input = (favicon, url) ->
+  site_input_img.attr('src', favicon)
+  site_input_img.attr('alt', url)
 
 loose_focus_textarea_on_keyup = (e) ->
   if e.keyCode == 13 #if key==Enter

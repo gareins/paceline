@@ -5,7 +5,7 @@
 #############
 
 # check url for js/css
-_pl_chk_url = (url1) ->
+chk_url = (url1) ->
   # I don't remember why this check is done...
   if !window.location
     return false
@@ -31,20 +31,20 @@ _pl_chk_url = (url1) ->
   if url1 != url2
     return false
 
-  _pl_globals.hostname = url1
+  globals.hostname = url1
   true
 
-_pl_init = (url) ->
-  if !_pl_chk_url(url)
+init = (url) ->
+  if !chk_url(url)
     return
   
   # Find all inputs of certain type
-  _pl_globals.inputs = $(document)
+  globals.inputs = $(document)
       .find('input')
       .filter("[type='password'], [type='text'], [type='email']")
   
   # Configure and start observer
-  observer = new MutationObserver _pl_body_change_listener
+  observer = new MutationObserver body_change_listener
   target = $("body").get(0)
   config =
     childList: true
@@ -52,18 +52,18 @@ _pl_init = (url) ->
   observer.observe target, config
 
   # Takes all inputs and "figures out" the right one
-  _pl_choose_input true
+  choose_input true
 
   # Check for change in input field every 0.6 second
-  interval = setInterval _pl_choose_input, 600
+  interval = setInterval choose_input, 600
 
-  _pl_globals.observer = observer
-  _pl_globals.interval = interval
+  globals.observer = observer
+  globals.interval = interval
   return
 
 # Listening for new inputs, that are not hidden anymore
 # or are ajax-ed in to the page
-_pl_body_change_listener = (mutations) ->
+body_change_listener = (mutations) ->
   mutations.forEach (mut) ->
     if mut.addedNodes.length > 0
       for node in mut.addedNodes
@@ -71,11 +71,11 @@ _pl_body_change_listener = (mutations) ->
           ($ node)
             .find("input")
             .filter("[type='password'], [type='text'], [type='email']")
-            .map () -> _pl_globals.inputs.push($ this)
+            .map () -> globals.inputs.push($ this)
 
 # Choosing correct input field for username and password
-_pl_choose_input = () ->
-  inputs = _pl_globals.inputs
+choose_input = () ->
+  inputs = globals.inputs
   unameIdx = -1
 
   # This goes through all inputs, and finds first visible password field 
@@ -110,15 +110,15 @@ _pl_choose_input = () ->
 
   # Check if we already generated password for this username (#FIX 51)
   uname = no1.val()
-  if uname != _pl_globals.uname && uname.length > 0
+  if uname != globals.uname && uname.length > 0
     # both fields are saved into globals
-    _pl_globals.uname = uname
-    _pl_globals.inputIdx = unameIdx
+    globals.uname = uname
+    globals.inputIdx = unameIdx
 
     # If first time, do not generate password (#FIX 51)
     if arguments.length == 0
       # Generate password
-      self.port.emit "username", uname, _pl_globals.hostname
+      self.port.emit "username", uname, globals.hostname
  
   return
 
@@ -128,8 +128,8 @@ _pl_choose_input = () ->
 #           #
 #############
 
-_pl_root = exports ? this
-_pl_root._pl_globals =
+root = exports ? this
+root.globals =
   inputs:[]
   inputIdx: -1
   uname: ""
@@ -144,12 +144,12 @@ _pl_root._pl_globals =
 ####################
 
 self.port.on 'disable', () ->
-  _pl_globals.observer.disconnect()
-  clearInterval _pl_globals.interval
-  _pl_globals.inputs = []
+  globals.observer.disconnect()
+  clearInterval globals.interval
+  globals.inputs = []
 
 self.port.on 'pass', (pass) ->
-  inpt = $(_pl_globals.inputs[_pl_globals.inputIdx + 1])
+  inpt = $(globals.inputs[globals.inputIdx + 1])
   # some password fields are not type=password, so check for type (#FIX 51)
   if inpt.attr('type') != 'password'
     inpt.attr('type', 'password')
@@ -157,7 +157,7 @@ self.port.on 'pass', (pass) ->
   on_generated_password_change inpt
   inpt.val(pass)
 
-self.port.on 'enable', _pl_init
+self.port.on 'enable', init
 
 #############################
 #                           #
@@ -171,6 +171,6 @@ on_generated_password_change = (inpt) ->
   inpt.css('opacity': 0)
   inpt.animate(
     {opacity: end_opacity},
-    120,
+    100,
     () -> return
   )

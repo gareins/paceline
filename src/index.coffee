@@ -25,6 +25,8 @@ re_storage   = require('sdk/simple-storage')
 re_url       = require('sdk/url')
 re_clipboard = require('sdk/clipboard')
 
+`let { getFavicon } = require("sdk/places/favicon");`
+
 #
 #
 # Set implementation
@@ -223,7 +225,7 @@ panel = re_panel.Panel
 apply_status_wrapper = (stat, url) ->
   # Set all variables
   Storage.set_setting "enable", (stat != 2)      # store in storage
-  panel.port.emit 'set_page_stat', stat          # inform panel
+  panel.port.emit 'set-page-stat', stat          # inform panel
   auto_filler.apply_stat stat, re_tabs.activeTab # inform page auto_filler
 
   # change button accordingly
@@ -240,9 +242,9 @@ apply_status_wrapper = (stat, url) ->
         '64': './icons/red_64.png'
     else
       button.icon =
-        '16': './icons/grey_16.png'
-        '32': './icons/grey_32.png'
-        '64': './icons/grey_64.png'
+        '16': './icons/transparent_16.png'
+        '32': './icons/transparent_32.png'
+        '64': './icons/transparent_64.png'
 
   # check if enabled
   if not Storage.is_enabled()
@@ -285,6 +287,12 @@ on_change_tab = (t) ->
   stat = if Storage.is_site_disabled(url) then 1 else 0
   apply_status_wrapper stat, url
 
+  # Sending new favicon and url to panel //deprecated on MDN
+  getFavicon(t).then (favicon) ->
+    # TODO: check if still same tab. Also: why not working???
+    console.log "here:", favicon
+    panel.port.emit 'tab-data', favicon, url
+
 #
 #
 # Start listening for events
@@ -300,5 +308,9 @@ re_tabs.on    'ready',           on_change_tab
 re_tabs.on    'activate',        on_change_tab
 
 # Inform panel to initialize itself!
-panel.port.emit 'show_first', Storage.get_password(), Storage.get_settings()
+panel.port.emit 'show-first', Storage.get_password(), Storage.get_settings()
+
+
+getFavicon("http://mozilla.org").then (url) ->
+  console.log(url)
 

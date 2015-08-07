@@ -35,7 +35,16 @@
       </div>
 
       <div class="hideable">
-        <p> <span class="key">site</span><input class="inpt" name="site" id="site-input">
+        <p> 
+          <span class="key">site</span>
+          <div style="position: relative">
+            <div style="position: relative">
+              <input class="inpt" name="site" id="site-input">
+            </div>
+            <div id='site-input-img'>
+              <img src='icons/transparent_16.png' alt=""/>
+            </div>
+          </div>
         </p>
 
         <p>
@@ -67,13 +76,12 @@
             <option value="sha256">SHA256</option>
             <option value="sha512">SHA512</option>
             <option value="sha3">SHA3</option>
-            <!-- </optgroup> <optgroup label="Cipher"> -->
         </select>
         </p>
 
         <p>
         <span class="key">content</span>
-        <textarea id="text-content" class="inpt" rows="3" name="content">[site.url][uname][pass]</textarea>
+        <textarea id="text-content" class="inpt" rows="3" name="content"></textarea>
         </p>
 
         <p id="content-error-p">
@@ -110,7 +118,7 @@
       <div style="margin-left: 20px;">
         <img src="icons/green_64.png" title="Enabled 4 site" stat="0" class="border-inactive">
         <img src="icons/red_64.png"  title="Disabled 4 site" stat="1" class="border-inactive">
-        <img src="icons/grey_64.png" title="Disabled 4 ALL" stat="2" class="border-inactive">
+        <img src="icons/transparent_64.png" title="Disabled 4 ALL" stat="2" class="border-inactive">
       </div>
     </div>
 
