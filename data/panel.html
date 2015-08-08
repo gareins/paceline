@@ -1,126 +1,118 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html><head>
-
+<html>
+  <head>
     <meta content="text/html; charset=ISO-8859-1" http-equiv="content-type">
     <title>PacelinePanel</title>
-    <link rel="stylesheet" href="panel.css" />
-
-    </style>
-  </head><body>
+    <link rel="stylesheet" href="panel.css">
+  </head>
+  <body>
     <div id="content">
       <div class="heading-div">
         <div class="title-div">
           <h1>Password</h1>
         </div>
-        <div class='hr'> <hr \> </div>
+        <div class='hr'>
+          <hr>
+        </div>
       </div>
-
       <div class="hideable">
         <div class="center">
           <p> <input name="password" id="password-input" type="password"> <br>
-          <span class="checkbox">hidden</span>
-          <input id="check-hidden" checked="checked" name="hidden" type="checkbox">
-
-          <span class="checkbox">save password</span>
-          <input id="check-save" checked="checked" name="save" type="checkbox"><br>
+            <span class="checkbox">hidden</span>
+            <input id="check-hidden" checked="checked" name="hidden" type="checkbox">
+            <span class="checkbox">save password</span>
+            <input id="check-save" checked="checked" name="save" type="checkbox"><br>
           </p>
         </div>
       </div>
-
       <div class="heading-div">
         <div class="title-div">
           <h1>Generate</h1>
         </div>
-        <div class='hr'> <hr \> </div>
+        <div class='hr'>
+          <hr>
+        </div>
       </div>
-
       <div class="hideable">
-        <p> 
+        <div style="margin-top:10px;">
           <span class="key">site</span>
           <div style="position: relative">
             <div style="position: relative">
               <input class="inpt" name="site" id="site-input">
             </div>
             <div id='site-input-img'>
-              <img src='icons/transparent_16.png' alt=""/>
+              <img src='icons/transparent_16.png' alt="">
             </div>
           </div>
-        </p>
-
+        </div>
         <p>
-        <span class="key">username</span><input class="inpt" name="username" id="uname-input">
+          <span class="key">username</span><input class="inpt" name="username" id="uname-input">
         </p>
-
         <fieldset>
           <legend>Password:</legend>
           <span id=gen-pass></span>
-          <input id="copy-button" type="button" title="copy" value="" />
+          <input id="copy-button" type="button" title="copy" value="">
         </fieldset>
-
       </div>
-
       <div class="heading-div">
         <div class="title-div">
           <h1>Settings</h1>
         </div>
-        <div class='hr'> <hr \> </div>
+        <div class='hr'>
+          <hr>
+        </div>
       </div>
-
       <div class="hideable">
-        <p> <span class="key">mode</span>
-        <select id="mode-select" name="mode">
-          <optgroup label="Hash">
-            <option value="md5">MD5</option>
-            <option value="ripemd">RIPEMD-160</option>
-            <option value="sha1">SHA1</option>
-            <option value="sha256">SHA256</option>
-            <option value="sha512">SHA512</option>
-            <option value="sha3">SHA3</option>
-        </select>
-        </p>
-
         <p>
-        <span class="key">content</span>
-        <textarea id="text-content" class="inpt" rows="3" name="content"></textarea>
+          <span class="key">mode</span>
+          <select id="mode-select" name="mode">
+            <optgroup label="Hash">
+              <option value="md5">MD5</option>
+              <option value="ripemd">RIPEMD-160</option>
+              <option value="sha1">SHA1</option>
+              <option value="sha256">SHA256</option>
+              <option value="sha512">SHA512</option>
+              <option value="sha3">SHA3</option>
+            </optgroup>
+          </select>
         </p>
-
+        <p>
+          <span class="key">content</span>
+          <textarea id="text-content" class="inpt" rows="3" cols="20" name="content"></textarea>
+        </p>
         <p id="content-error-p">
-        <span class="key">&nbsp;</span>
-        <span id="content-error" style="color: red">&nbsp;</span>
+          <span class="key">&nbsp;</span>
+          <span id="content-error" style="color: red">&nbsp;</span>
         </p>
-
         <p>
-        <span class="key">length</span>
-        <select id="length-select" name="length">
-          <option value="8" >8</option>
-          <option value="10">10</option>
-          <option value="12">12</option>
-          <option value="14">14</option>
-          <option value="16">16</option>
-          <option value="18">18</option>
-          <option value="20">20</option>
-        </select>
+          <span class="key">length</span>
+          <select id="length-select" name="length">
+            <option value="8" >8</option>
+            <option value="10">10</option>
+            <option value="12">12</option>
+            <option value="14">14</option>
+            <option value="16">16</option>
+            <option value="18">18</option>
+            <option value="20">20</option>
+          </select>
         </p>
-
-        <p> <span class="key">bit2string</span>
-        <select id="bit2string-select" name="bit2str">
-          <option value="hex">HEX</option>
-          <option value="b64">Base64</option>
-        </select>
+        <p>
+          <span class="key">bit2string</span>
+          <select id="bit2string-select" name="bit2str">
+            <option value="hex">HEX</option>
+            <option value="b64">Base64</option>
+          </select>
         </p>
-
         <div style="text-align: right; margin-right:5px;"><a id="help-alert" href="#">help</a></div>
       </div>
-      <hr style="width: 100%; border-top: dashed 1px; opacity:50%" />
+      <hr style="width: 100%; border-top: dashed 1px; opacity:50%">
     </div>
-
     <div id="footer">
       <div style="margin-left: 20px;">
-        <img src="icons/green_64.png" title="Enabled 4 webpage" stat="0" class="border-inactive">
-        <img src="icons/red_64.png"  title="Disabled 4 webpage" stat="1" class="border-inactive">
-        <img src="icons/transparent_64.png" title="Disabled 4 ALL" stat="2" class="border-inactive">
+        <img src="icons/green_64.png" alt="" title="Enabled 4 webpage" stat="0" class="border-inactive">
+        <img src="icons/red_64.png" alt="" title="Disabled 4 webpage" stat="1" class="border-inactive">
+        <img src="icons/transparent_64.png" alt="" title="Disabled 4 ALL" stat="2" class="border-inactive">
       </div>
     </div>
-
   </body>
 </html>
