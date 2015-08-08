@@ -17,7 +17,8 @@
     "buildall": "(npm run clean; npm run deps; npm run icons; grunt)"
   },
   "license": "MPL-2.0",
-  "dependencies": {},
+  "dependencies": {
+  },
   "devDependencies": {
     "coffee-script": "^1.9.3",
     "coffeelint": "^1.10.1",
@@ -28,6 +29,7 @@
     "grunt-contrib-less": "^1.0.1",
     "grunt-contrib-symlink": "^0.3.0",
     "grunt-contrib-watch": "^0.6.1",
+    "grunt-yui-compressor": "^0.4.0",
     "less": "^2.5.1"
   }
 }
