@@ -25,8 +25,6 @@ re_storage   = require('sdk/simple-storage')
 re_url       = require('sdk/url')
 re_clipboard = require('sdk/clipboard')
 
-`let { getFavicon } = require("sdk/places/favicon");`
-
 #
 #
 # Set implementation
@@ -311,8 +309,3 @@ re_tabs.on    'activate',        on_change_tab
 
 # Inform panel to initialize itself!
 panel.port.emit 'show-first', Storage.get_password(), Storage.get_settings()
-
-
-getFavicon("http://mozilla.org").then (url) ->
-  console.log(url)
-

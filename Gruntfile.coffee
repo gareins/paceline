@@ -1,6 +1,4 @@
 module.exports = (grunt) ->
-  # pkg: grunt.file.readJSON('package.json')
-  
   # Project configuration.
   grunt.initConfig
     jshint:
@@ -38,19 +36,33 @@ module.exports = (grunt) ->
       compile:
         files:
           'build/index.js': 'src/index.coffee'
-
-      glob_to_multiple:
-        expand: true
-        flatten: true
-        cwd: 'src/data'
-        src: ['*.coffee']
-        dest: 'build/data'
-        ext: '.js'
+          'build/data/input-get.js': 'src/data/input-get.coffee'
+          'build/data/panel-script.js': 'src/data/panel-script.coffee'
+          'build/data/crypto.js': 'src/data/crypto.coffee'
 
     less:
       development:
         files:
           'build/data/panel.css': 'data/panel.less'
+
+    min:
+      dist0:
+        src: ['build/index.js']
+        dest: 'build/index.js'
+      dist1:
+        src: ['build/data/input-get.js']
+        dest: 'build/data/input-get.js'
+      dist2:
+        src: ['build/data/panel-script.js']
+        dest: 'build/data/panel-script.js'
+      dist3:
+        src: ['build/data/crypto.js']
+        dest: 'build/data/crypto.js'
+
+    cssmin:
+      dist:
+        src: ['build/data/panel.css']
+        dest: 'build/data/panel.css'
 
   # Load the plugin that provides the "jshint" task.
   grunt.loadNpmTasks 'grunt-contrib-jshint'
@@ -59,8 +71,10 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks 'grunt-contrib-symlink'
   grunt.loadNpmTasks 'grunt-contrib-coffee'
   grunt.loadNpmTasks 'grunt-contrib-less'
+  grunt.loadNpmTasks 'grunt-yui-compressor'
 
   # Default task(s).
   grunt.registerTask 'default', [ 'symlink', 'coffee', 'less' ]
+  grunt.registerTask 'minall', [ 'min', 'cssmin' ]
 
   return
