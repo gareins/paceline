@@ -55,6 +55,11 @@ To debug, you use:
 $ npm run preview
 ```
 
+
+## Download
+
+Xpi file can be found <a href="https://mega.nz/#!QAoSFJQT!Isb5Amdxo0e4A0RNx2WhG_-SKki2VGxUzuFPOJkl7yo">here</a>
+
 ## Feedback
 
 Any kind of feedback is welcomed.
