@@ -52,7 +52,8 @@ $ npm run buildall
 
 To debug, you use:
 ```
-$ npm r
+$ npm run preview
+```
 
 ## Feedback
 
