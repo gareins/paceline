@@ -55,6 +55,7 @@ preinit = () ->
   # port handlers
   self.port.on 'pass-returned', on_pass_returned
   self.port.on 'show-first',    init
+  self.port.on 'fill-settings', fill_settings
   self.port.on 'set-page-stat', set_page_stat
   self.port.on 'tab-data',      set_site_input
 
@@ -73,6 +74,7 @@ preinit = () ->
   $('#password-input')   .on 'change' , on_password_input_change
   $('.border-inactive')  .on 'click'  , on_status_image_click
   $('#site-input-img')   .on 'click'  , on_site_img_click
+  $('#reset')            .on 'click'  , on_reset
 
   # other
   delay = 75
@@ -81,8 +83,6 @@ preinit = () ->
   stat_img_0       .tooltipsy {delay:delay}
   stat_img_1       .tooltipsy {delay:delay}
   stat_img_2       .tooltipsy {delay:delay}
-
-
 
 ##################
 #                #
@@ -142,23 +142,29 @@ set_page_stat = (stat) ->
       stat_img_1.addClass("border-inactive")
       stat_img_2.addClass("border-active")
 
-# initialization sequence
-init = (pass, settings) ->
-  #init scrollbar
-  content_div.perfectScrollbar {suppressScrollX: true}
-
-  # fill settings
+# Fill sesttings form
+fill_settings = (settings) ->
   $('#check-hidden')     .attr 'checked', settings.hidden
   $('#check-save')       .attr 'checked', settings.save
   $('#mode-select')      .val settings.mode
   $('#length-select')    .val settings.length
   $('#text-content')     .val settings.content
   $('#bit2string-select').val settings.bit2str
-  $('#password-input')   .val pass
+  $('#password-input')   .val settings.password
 
   # set page_stat
-  if !settings.enable
-    set_page_stat 2
+  stat = if settings.active then 0 else 2
+  set_page_stat stat
+
+
+# initialization sequence
+init = (settings) ->
+  #init scrollbar
+  content_div.perfectScrollbar {suppressScrollX: true}
+
+  #fill settings
+  fill_settings settings
+  pass = settings.password
 
   #hide divs on startup
   for h1 in $( "h1" )
@@ -177,8 +183,6 @@ init = (pass, settings) ->
 
   # hide content error paragraph
   $("#content-error-p").hide()
-  on_hide_password_change()
-
 
 
 ##################
@@ -226,6 +230,9 @@ on_password_input_change = () ->
   self.port.emit 'password-change', $( this ).val()
   generate_send()
 
+on_reset = () ->
+  self.port.emit 'reset'
+
 on_textarea_change = () ->
   el = $( this )
   allowed = ["site.url", "uname", "pass"]
@@ -258,8 +265,6 @@ on_status_image_click = () ->
 
   set_page_stat stat
   self.port.emit 'change-stat', stat
-  on_setting_change "enable", nxt_stat
-
 
 # # # # # # # # # # #
 preinit() # Preinit #

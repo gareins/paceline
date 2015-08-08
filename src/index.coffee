@@ -25,6 +25,8 @@ re_storage   = require('sdk/simple-storage')
 re_url       = require('sdk/url')
 re_clipboard = require('sdk/clipboard')
 
+set_interval = require("sdk/timers").setInterval
+
 #
 #
 # Set implementation
@@ -32,10 +34,22 @@ re_clipboard = require('sdk/clipboard')
 #
 
 class MiniSet
-  constructor: ()  -> @data = {}
-  contains: (item) -> return (typeof @data[item] != 'undefined')
+  constructor: ()->
+    @data = {}
+    if arguments.length == 1
+      if (typeof arguments[0] != 'undefined')
+        for k in arguments[0]
+          @data[k] = true
+
+  get_list: () ->
+    lst = []
+    for k,_ of @data
+      lst.push k
+    return lst
+
   remove: (item)   -> delete @data[item]
   add: (item)      -> @data[item] = true
+  contains: (item) -> return (typeof @data[item] != 'undefined')
 
 #
 #
@@ -63,10 +77,11 @@ class Crypto
   # passes resulting string to return function
   get_pass: (uname, url, return_func) ->
     s = re_storage.storage.settings
+    pass = Storage.get_settings 'password'
 
     content = s.content
     content = content.replace(/\[uname\]/g, uname)
-    content = content.replace(/\[pass\]/g, re_storage.storage.password)
+    content = content.replace(/\[pass\]/g, pass)
     content = content.replace(/\[site\.url\]/g, url)
 
     @cipher.port.emit "hash", content, s.mode, s.bit2str
@@ -109,7 +124,7 @@ class AutoFiller
 
     # DEBUG: Check if attachment success
     if typeof @tabs[tab.id] == 'undefined'
-      console.log "Why not attached ??"
+      console.error "Why not attached ??"
       return
 
     tabs_port = @tabs[tab.id].port
@@ -142,6 +157,25 @@ auto_filler = new AutoFiller()
 Storage = {}
 Storage =
   _s: re_storage.storage
+  
+  handle_boot: () ->
+    if not Storage._s.settings
+      Storage._s.settings =
+        'hidden': false
+        'save': false
+        'mode': 'sha1'
+        'length': '12'
+        'content': '[site.url][uname][pass]'
+        'bit2str': 'b64'
+        'active': true
+        'password': ''
+      Storage._s.ds_list = new Array()
+      Storage._s.disabled_sites = new MiniSet()
+    else
+      Storage._s.disabled_sites = new MiniSet(Storage._s.ds_list)
+
+    # Set initial stat; TODO: this should be moved elsewhere
+    apply_status_wrapper (if Storage.is_active() then 0 else 2)
 
   is_site_disabled: (site) ->
     return Storage._s.disabled_sites.contains site
@@ -152,36 +186,28 @@ Storage =
   disable_site: (url) ->
     Storage._s.disabled_sites.add url
 
-  is_enabled: () ->
-    Storage._s.settings.enable
-
-  set_password: (p) ->
-    Storage._s.password = p
+  is_active: () ->
+    Storage._s.settings.active
 
   set_setting: (key, value) ->
     if not (key of Storage._s.settings)
-      console.log "key: " + key + " not in store.settings!!"
+      console.error "key: " + key + " not in store.settings!!"
       return
     Storage._s.settings[key] = value
-
-  get_password: () ->
-    Storage._s.password
 
   get_settings: () ->
     Storage._s.settings
 
-# handle first boot
-if not Storage._s.settings
-  Storage._s.settings =
-    'hidden': false
-    'save': false
-    'mode': 'sha1'
-    'length': '12'
-    'content': '[site.url][uname][pass]'
-    'bit2str': 'b64'
-    'enable': true
-  Storage._s.password = ""
-  Storage._s.disabled_sites = new MiniSet()
+  store_disabled_sites: () ->
+    Storage._s.ds_list = Storage._s.disabled_sites.get_list()
+
+  reset_all: () ->
+    delete Storage._s.settings
+    delete Storage._s.ds_list
+    delete Storage._s.disabled_sites
+    Storage.handle_boot()
+
+    panel.port.emit 'fill-settings', Storage.get_settings()
 
 #
 #
@@ -222,7 +248,7 @@ panel = re_panel.Panel
 
 apply_status_wrapper = (stat, url) ->
   # Set all variables
-  Storage.set_setting "enable", (stat != 2)      # store in storage
+  Storage.set_setting 'active', (stat != 2)      # store in storage
   panel.port.emit 'set-page-stat', stat          # inform panel
   auto_filler.apply_stat stat, re_tabs.activeTab # inform page auto_filler
 
@@ -244,8 +270,8 @@ apply_status_wrapper = (stat, url) ->
         '32': './icons/transparent_32.png'
         '64': './icons/transparent_64.png'
 
-  # check if enabled
-  if not Storage.is_enabled()
+  # check if active
+  if not Storage.is_active()
     return
 
   # check if url is "real"
@@ -274,16 +300,17 @@ on_panel_copy = (txt) ->
   re_clipboard.set txt, "text"
 
 on_panel_password_change = (pass) ->
-  Storage.set_password pass
+  Storage.set_setting 'password', pass
   panel.port.emit 'pass-returned', ""
 
 on_panel_change_stat = (stat) ->
   apply_status_wrapper stat, re_url.URL(re_tabs.activeTab.url).host
 
 on_change_tab = (t) ->
-  url = re_url.URL(t.url).host
-  stat = if Storage.is_site_disabled(url) then 1 else 0
-  apply_status_wrapper stat, url
+  if Storage.is_active()
+    url = re_url.URL(t.url).host
+    stat = if Storage.is_site_disabled(url) then 1 else 0
+    apply_status_wrapper stat, url
   
   # Using getFavicon was way too slow, t.favicon
   # on the other side was unreliable and deprecated.
@@ -292,6 +319,9 @@ on_change_tab = (t) ->
   # Sending new favicon and url to panel
   favicon = "http://www.google.com/s2/favicons?domain=" + url
   panel.port.emit 'tab-data', favicon, url
+
+on_reset = () ->
+  Storage.reset_all()
 
 #
 #
@@ -304,8 +334,16 @@ panel.port.on 'generate',        on_panel_generate
 panel.port.on 'copy',            on_panel_copy
 panel.port.on 'password-change', on_panel_password_change
 panel.port.on 'change-stat',     on_panel_change_stat
+panel.port.on 'reset',           on_reset
 re_tabs.on    'ready',           on_change_tab
 re_tabs.on    'activate',        on_change_tab
 
+
+# Store disabled_sites list every so often
+set_interval () -> Storage.store_disabled_sites(), 1000
+
+# Init Storage
+Storage.handle_boot()
+
 # Inform panel to initialize itself!
-panel.port.emit 'show-first', Storage.get_password(), Storage.get_settings()
+panel.port.emit 'show-first', Storage.get_settings()
