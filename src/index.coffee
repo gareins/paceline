@@ -28,6 +28,15 @@ re_clipboard = require('sdk/clipboard')
 set_interval = require("sdk/timers").setInterval
 
 #
+# Handler for disable/shutdown
+#
+
+exports.onUnload = (reason) ->
+  if reason in ['disable', 'shutdown']
+    if not Storage.get_setting 'save'
+      Storage.set_setting 'password', ''
+
+#
 #
 # Set implementation
 #
@@ -77,7 +86,7 @@ class Crypto
   # passes resulting string to return function
   get_pass: (uname, url, return_func) ->
     s = re_storage.storage.settings
-    pass = Storage.get_settings 'password'
+    pass = Storage.get_setting 'password'
 
     content = s.content
     content = content.replace(/\[uname\]/g, uname)
@@ -161,8 +170,8 @@ Storage =
   handle_boot: () ->
     if not Storage._s.settings
       Storage._s.settings =
-        'hidden': false
-        'save': false
+        'hidden': true
+        'save': true
         'mode': 'sha1'
         'length': '12'
         'content': '[site.url][uname][pass]'
@@ -195,8 +204,11 @@ Storage =
       return
     Storage._s.settings[key] = value
 
-  get_settings: () ->
+  get_all_settings: () ->
     Storage._s.settings
+
+  get_setting: (key) ->
+    return Storage._s.settings[key]
 
   store_disabled_sites: () ->
     Storage._s.ds_list = Storage._s.disabled_sites.get_list()
@@ -207,7 +219,7 @@ Storage =
     delete Storage._s.disabled_sites
     Storage.handle_boot()
 
-    panel.port.emit 'fill-settings', Storage.get_settings()
+    panel.port.emit 'fill-settings', Storage.get_all_settings()
 
 #
 #
@@ -340,10 +352,10 @@ re_tabs.on    'activate',        on_change_tab
 
 
 # Store disabled_sites list every so often
-set_interval () -> Storage.store_disabled_sites(), 1000
+set_interval (() -> Storage.store_disabled_sites()), 1000
 
 # Init Storage
 Storage.handle_boot()
 
 # Inform panel to initialize itself!
-panel.port.emit 'show-first', Storage.get_settings()
+panel.port.emit 'show-first', Storage.get_all_settings()
