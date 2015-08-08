@@ -41,6 +41,20 @@ Automatic password generation upon username input.
 
 <a href="http://imgur.com/VoMLVqo"><img src="http://i.imgur.com/VoMLVqo.png" title="source: imgur.com" /></a>
 
+## Build
+
+This works for me:
+```
+$ git clone https://github.com/gareins/paceline.git
+$ npm install
+$ npm run buildall
+```
+
+To debug, you use:
+```
+$ npm run preview
+```
+
 ## Feedback
 
 Any kind of feedback is welcomed.
