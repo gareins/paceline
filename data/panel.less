@@ -1,28 +1,52 @@
+// TODO.1: max widths for cordana
+// TODO.2: better dropdown menus
+// TODO.3: stat images height
+
 // constants:
 @color-dark:   #19171a;
 @color-middle: #444444;
 @color-light:  #a5a5a5;
+
+@height-wrap: 720px;
+@width-wrap:  480px;
+
+@font-small: 2.5vh;
+@font-normal: 2.8vh;
+@font-big: 5.3vh;
 
 // mixins:
 .linear-gradient-back(@alpha) {
   background: linear-gradient(to bottom, rgba(255,255,255,@alpha) 0%, rgba(255,255,255,@alpha) 100%), url(copy.png) repeat 0 0;
 }
 
+.user-select (@val) {
+  -webkit-touch-callout:  @val;
+  -webkit-user-select:    @val;
+  -khtml-user-select:     @val;
+  -moz-user-select:       @val;
+  -ms-user-select:        @val;
+  user-select:            @val;
+}
+
+// actual css
 html, body {
-  height: 100%;
   padding: 0;
   margin: 0;
 
   background-color: @color-dark;
   color: @color-light;
-  font-size: 12px;
+  font-size: @font-normal;
+}
+
+#wrapper {
+  height: @height-wrap;
+  width:  @width-wrap;
 }
 
 #content {
-  padding: 0 10px 0 10px;
   // this is changed via javascript based on platform
-  height: 350px;
-  width: 750px;
+  height: 85%;
+  width: 3*@width-wrap;
   position: relative;
   display: flex;
 }
@@ -53,7 +77,7 @@ html, body {
 #help-div {
   overflow: auto;
   height: 100%;
-  font-size: x-small;
+  font-size: @font-small;
 }
 
 .heading-div {
@@ -66,17 +90,20 @@ html, body {
   border-width: 1px;
   border-color: transparent;
   border-radius: 2px;
+  transition: border-color 1s;
   &:hover {
-    border-color: @color-light;
-    cursor: pointer;
+    border-color: @color-middle;
   }
 
   .title-div {
     position: relative;
     z-index: 1;
     margin-top: 2px;
+    margin-botton: 5px;
     h1 {
-      font-size: 20px;
+      .user-select(none);
+      cursor: default;
+      font-size: @font-big;
       background-color: fade(@color-dark, 70%); 
       display:inline; 
       padding: 0 10px 0 10px;
@@ -95,22 +122,24 @@ html, body {
 }
 
 #password-input {
-  width: 160px;
+  width: 100%;
+  font-size: @font-normal;
 }
 .checkbox {
-  font-size: 11px;
+  font-size: @font-small;
 }
 .key {
-  width: 65px;
+  width: 30%;
   float: left;
 }
 .center {
   margin: 0 auto;
-  width: 180px;
+  width: 80%;
   text-align: center;
 }
 .inpt {
-  width: 120px;
+  font-size: @font-normal;
+  width: 60%;
   text-decoration: none;
   border-radius: 0px;
   border: 0;
@@ -119,8 +148,12 @@ html, body {
 fieldset {
   border-style: solid;
   border-color: @color-light;
-  font-size: 10px;
+  font-size: @font-small;
   padding-top: 6px; /*ugly way to center image with text*/
+  span {
+    font-family: monospace;
+    font-size: @font-normal;
+  }
 }
 
 #site-input-img {
@@ -149,6 +182,7 @@ fieldset {
   padding: 0 0 0 16px; /*TODO: better fix for no outline*/
   border: none;
   cursor: pointer;
+  transition: background 100ms;
   &:hover {
     .linear-gradient-back(0.2);
   }
@@ -178,20 +212,24 @@ fieldset {
 
 #footer {
   color: @color-dark;
-  height: 35px;
+  height: 15%;
+  width: 100%;
   position: relative;
-  padding-top: 15px;
-  text-align: center;
-  background: linear-gradient(0deg, @color-light, @color-light 75%, @color-dark 95%);
+
+  display:flex;
+  justify-content:center;
+  align-items:center;
+
+  background: linear-gradient(0deg, @color-light, @color-light 85%, @color-dark 98%);
   
   img {
-    margin: 0 6px 0 6px;
-    width: 26px;
-    height: 26px;
-    vertical-align:middle;
+    margin: 0 6px;
+    width: 20%;
+    vertical-align: middle;
+    cursor: pointer;
+    transition: border 100ms;
 
     &:hover {
-      cursor: pointer;
       border: 2px solid @color-middle;
       border-radius: 2px;
     }
@@ -199,12 +237,8 @@ fieldset {
 }
 
 #content-error-p {
-  font-size: 10px;
+  font-size: @font-small;
   margin-top: -10px;
-}
-
-#gen-pass {
-  font-family: monospace;
 }
 
 .tooltipsy {

@@ -6,168 +6,182 @@
     <link rel="stylesheet" href="panel.css">
   </head>
   <body>
-    <div id="content">
-      <div class="pane-btn"></div>
-      <div class="pane-content">
-        <div class="heading-div">
-          <div class="title-div">
-            <h1>Help</h1>
+    <div id="wrapper">
+      <div id="content">
+        <div class="pane-btn"></div>
+        <div class="pane-content">
+          <div class="heading-div">
+            <div class="title-div">
+              <h1>Help</h1>
+            </div>
+            <div class='hr'>
+              <hr>
+            </div>
           </div>
-          <div class='hr'>
-            <hr>
-          </div>
-        </div>
-        <div id="help-div">
-          <p>
-          Use cryptographic functions to generate your password, based on username, website data and your personal password.
-          </p>
+          <div id="help-div">
+            <p>
+            Use cryptographic functions to generate your password, based on 
+            username, website data and your personal password.
+            </p>
 
-          <p>
-          Hash functions use input content and output random looking string. Cipher functions do the same, only you need to also provide encryption key, to use those.
-          </p>
+            <p>
+            Hash functions use input content and output random looking string. 
+            Cipher functions do the same, only you need to also provide 
+            encryption key, to use those.
+            </p>
 
-          <p>
-          Choosing content and key can be achieved using your password, username and website data. Example below:
-          <ul>
-            <li> content: '[site.url]rnd[uname][pass]' </li>
-            <li> function: SHA512 </li>
-          </ul>
-          </p>
+            <p>
+            Choosing content and key can be achieved using your password, 
+            username and website data. Example below:
+            <ul>
+              <li> content: '[site.url]rnd[uname][pass]' </li>
+              <li> function: SHA512 </li>
+            </ul>
+            </p>
 
-          <p>
-          For 'got.com', username 'john.snow' and password 'iknownothing': 
-          SHA512( got.comrndjohn.snowiknownothing ) = 'wDJwpKEd3KNM8JZnavV0T21Rwz7a6EL...'
-          </p>
+            <p>
+            For 'got.com', username 'john.snow' and password 'iknownothing': 
+            SHA512( got.comrndjohn.snowiknownothing ) = 
+            'wDJwpKEd3KNM8JZnavV0T21Rwz7a6EL...'
+            </p>
 
-          <p>
-          We currently only support two ways to generate password string from given bit stream of criptographic function outputs. These two are:
-          <ul>
-            <li> HAX[0:password_length] </li>
-            <li> base64[0:password_length], where invalid non digit or letter </li>
-          </ul>
-          characters are removed. If Resulting string is too short, we append zeroes.
-          </p>
+            <p>
+            We currently only support two ways to generate password string 
+            from given bit stream of criptographic function outputs. 
+            These two are:
+            <ul>
+              <li> HAX[0:password_length] </li>
+              <li> 
+                base64[0:password_length], where invalid non digit or letter 
+              </li>
+            </ul>
+            characters are removed. If Resulting string is too short, 
+            we append zeroes.
+            </p>
 
-          <p>
-          Currently supported website data is its url, but more could be added in future.
-          </p>
-        </div>
-      </div>
-      <div class="pane-btn btn-right"></div>
-      <div class="pane-btn btn-left"></div>
-      <div class="pane-content">
-        <div class="heading-div">
-          <div class="title-div">
-            <h1>Password</h1>
-          </div>
-          <div class='hr'>
-            <hr>
-          </div>
-        </div>
-        <div>
-          <div class="center">
-            <p> <input name="password" id="password-input" type="password"> <br>
-            <span class="checkbox">hidden</span>
-            <input id="check-hidden" checked="checked" name="hidden" type="checkbox">
-            <span class="checkbox">save password</span>
-            <input id="check-save" checked="checked" name="save" type="checkbox"><br>
+            <p>
+            Currently supported website data is its url, but more could be 
+            added in future.
             </p>
           </div>
         </div>
-        <div class="heading-div">
-          <div class="title-div">
-            <h1>Generate</h1>
-          </div>
-          <div class='hr'>
-            <hr>
-          </div>
-        </div>
-        <div>
-          <div style="margin-top:10px;">
-            <span class="key">site</span>
-            <div style="position: relative">
-              <div style="position: relative">
-                <input class="inpt" name="site" id="site-input">
-              </div>
-              <div id='site-input-img'>
-                <img src='icons/transparent_16.png' alt="">
-              </div>
+        <div class="pane-btn btn-right"></div>
+        <div class="pane-btn btn-left"></div>
+        <div class="pane-content">
+          <div class="heading-div">
+            <div class="title-div">
+              <h1>Password</h1>
+            </div>
+            <div class='hr'>
+              <hr>
             </div>
           </div>
-          <p>
-          <span class="key">username</span><input class="inpt" name="username" id="uname-input">
-          </p>
-          <fieldset>
-            <legend>Password:</legend>
-            <span id=gen-pass></span>
-            <input id="copy-button" type="button" title="copy" value="">
-          </fieldset>
+          <div>
+            <div class="center">
+              <p> <input name="password" id="password-input" type="password"> <br>
+              <span class="checkbox">hidden</span>
+              <input id="check-hidden" checked="checked" name="hidden" type="checkbox">
+              <span class="checkbox">save password</span>
+              <input id="check-save" checked="checked" name="save" type="checkbox"><br>
+              </p>
+            </div>
+          </div>
+          <div class="heading-div">
+            <div class="title-div">
+              <h1>Generate</h1>
+            </div>
+            <div class='hr'>
+              <hr>
+            </div>
+          </div>
+          <div>
+            <div style="margin-top:10px;">
+              <span class="key">site</span>
+              <div style="position: relative">
+                <div style="position: relative">
+                  <input class="inpt" name="site" id="site-input">
+                </div>
+                <div id='site-input-img'>
+                  <img src='icons/transparent_16.png' alt="">
+                </div>
+              </div>
+            </div>
+            <p>
+            <span class="key">username</span><input class="inpt" name="username" id="uname-input">
+            </p>
+            <fieldset>
+              <legend>Password:</legend>
+              <span id=gen-pass></span>
+              <input id="copy-button" type="button" title="copy" value="">
+              <span style="float:right">&nbsp;</span>
+            </fieldset>
+          </div>
         </div>
+        <div class="pane-btn btn-right"></div>
+        <div class="pane-btn btn-left"></div>
+        <div class="pane-content">
+          <div class="heading-div">
+            <div class="title-div">
+              <h1>Settings</h1>
+            </div>
+            <div class='hr'>
+              <hr>
+            </div>
+          </div>
+          <div>
+            <p>
+            <span class="key">mode</span>
+            <select id="mode-select" name="mode">
+              <option value="md5">MD5</option>
+              <option value="ripemd">RIPEMD-160</option>
+              <option value="sha1">SHA1</option>
+              <option value="sha256">SHA256</option>
+              <option value="sha512">SHA512</option>
+              <option value="sha3">SHA3</option>
+            </select>
+            </p>
+            <p>
+            <span class="key">content</span>
+            <textarea id="text-content" class="inpt" rows="3" cols="20" name="content"></textarea>
+            </p>
+            <p id="content-error-p">
+            <span class="key">&nbsp;</span>
+            <span id="content-error" style="color: red">&nbsp;</span>
+            </p>
+            <p>
+            <span class="key">length</span>
+            <select id="length-select" name="length">
+              <option value="8" >8</option>
+              <option value="10">10</option>
+              <option value="12">12</option>
+              <option value="14">14</option>
+              <option value="16">16</option>
+              <option value="18">18</option>
+              <option value="20">20</option>
+            </select>
+            </p>
+            <p>
+            <span class="key">bit2string</span>
+            <select id="bit2string-select" name="bit2str">
+              <option value="hex">HEX</option>
+              <option value="b64">Base64</option>
+            </select>
+            </p>
+            <div class="settings-end-links" style="">
+              <a id="reset" href="#">
+                reset
+              </a>
+            </div>
+          </div>
+        </div>
+        <div class="pane-btn"></div>
       </div>
-      <div class="pane-btn btn-right"></div>
-      <div class="pane-btn btn-left"></div>
-      <div class="pane-content">
-        <div class="heading-div">
-          <div class="title-div">
-            <h1>Settings</h1>
-          </div>
-          <div class='hr'>
-            <hr>
-          </div>
+      <div id="footer">
+        <div style="margin-left: 20px; cursor: default;">
+          <img src="icons/green_64.png" alt="" title="Enabled 4 webpage" stat="0" class="border-inactive">
+          <img src="icons/red_64.png" alt="" title="Disabled 4 webpage" stat="1" class="border-inactive">
+          <img src="icons/transparent_64.png" alt="" title="Disabled 4 ALL" stat="2" class="border-inactive">
         </div>
-        <div>
-          <p>
-          <span class="key">mode</span>
-          <select id="mode-select" name="mode">
-            <option value="md5">MD5</option>
-            <option value="ripemd">RIPEMD-160</option>
-            <option value="sha1">SHA1</option>
-            <option value="sha256">SHA256</option>
-            <option value="sha512">SHA512</option>
-            <option value="sha3">SHA3</option>
-          </select>
-          </p>
-          <p>
-          <span class="key">content</span>
-          <textarea id="text-content" class="inpt" rows="3" cols="20" name="content"></textarea>
-          </p>
-          <p id="content-error-p">
-          <span class="key">&nbsp;</span>
-          <span id="content-error" style="color: red">&nbsp;</span>
-          </p>
-          <p>
-          <span class="key">length</span>
-          <select id="length-select" name="length">
-            <option value="8" >8</option>
-            <option value="10">10</option>
-            <option value="12">12</option>
-            <option value="14">14</option>
-            <option value="16">16</option>
-            <option value="18">18</option>
-            <option value="20">20</option>
-          </select>
-          </p>
-          <p>
-          <span class="key">bit2string</span>
-          <select id="bit2string-select" name="bit2str">
-            <option value="hex">HEX</option>
-            <option value="b64">Base64</option>
-          </select>
-          </p>
-          <div class="settings-end-links" style="">
-            <a id="reset" href="#">
-              reset
-            </a>
-          </div>
-        </div>
-      </div>
-      <div class="pane-btn"></div>
-    </div>
-    <div id="footer">
-      <div style="margin-left: 20px;">
-        <img src="icons/green_64.png" alt="" title="Enabled 4 webpage" stat="0" class="border-inactive">
-        <img src="icons/red_64.png" alt="" title="Disabled 4 webpage" stat="1" class="border-inactive">
-        <img src="icons/transparent_64.png" alt="" title="Disabled 4 ALL" stat="2" class="border-inactive">
       </div>
     </div>
   </body>
