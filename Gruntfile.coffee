@@ -15,21 +15,14 @@ module.exports = (grunt) ->
       tasks: ['jshint', 'coffeelint']
 
     # build tasks
-    symlink:
-      options:
-        overwrite: true
-      explicit:
-        src: "package.json"
-        dest: "build/package.json"
-      expanded:
+    copy:
+      main:
         files: [
-          {
-            expand: true
-            overwrite: true
-            cwd: 'data'
-            src: ['panel.html', 'copy.png']
-            dest: 'build/data'
-          },
+          {expand: true, dest: "build", src: "package.json"},
+          {expand: true, dest: "build", src: "data/panel.html"},
+          {expand: true, dest: "build", src: "data/copy.png"},
+          {expand: true, dest: "build", src: "data/settings.svg"},
+          {expand: true, dest: "build", src: "data/help.png"},
         ]
 
     coffee:
@@ -68,13 +61,13 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks 'grunt-contrib-jshint'
   grunt.loadNpmTasks 'grunt-contrib-watch'
   grunt.loadNpmTasks 'grunt-coffeelint'
-  grunt.loadNpmTasks 'grunt-contrib-symlink'
+  grunt.loadNpmTasks 'grunt-contrib-copy'
   grunt.loadNpmTasks 'grunt-contrib-coffee'
   grunt.loadNpmTasks 'grunt-contrib-less'
   grunt.loadNpmTasks 'grunt-yui-compressor'
 
   # Default task(s).
-  grunt.registerTask 'default', [ 'symlink', 'coffee', 'less' ]
+  grunt.registerTask 'default', [ 'copy', 'coffee', 'less' ]
   grunt.registerTask 'minall', [ 'min', 'cssmin' ]
 
   return

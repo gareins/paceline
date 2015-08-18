@@ -20,12 +20,40 @@ html, body {
 
 #content {
   padding: 0 10px 0 10px;
+  // this is changed via javascript based on platform
   height: 350px;
+  width: 750px;
   position: relative;
+  display: flex;
 }
 
-.hideable {
+.pane-btn {
+  transition: opacity 500ms;
+  width: 3%;
+  opacity: 0;
+  &:hover {
+    opacity: 1;
+  }
+}
+
+.btn-left {
+  cursor: pointer;
+  background: linear-gradient(to left, @color-dark,  @color-middle);
+}
+
+.btn-right {
+  cursor: pointer;
+  background: linear-gradient(to right, @color-dark, @color-middle);
+}
+
+.pane-content {
+  width: 27%;
+}
+
+#help-div {
   overflow: auto;
+  height: 100%;
+  font-size: x-small;
 }
 
 .heading-div {
