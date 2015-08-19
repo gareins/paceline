@@ -25,42 +25,49 @@
             </p>
 
             <p>
-            Hash functions use input content and output random looking string. 
-            Cipher functions do the same, only you need to also provide 
-            encryption key, to use those.
+            Hash functions use input string, and output random looking string. 
+            Input string is generated using your master password, username and 
+            website data.
             </p>
 
             <p>
-            Choosing content and key can be achieved using your password, 
-            username and website data. Example below:
+            The way that input string is generated is determined in settings.
+            The input string is determined from "content" field, which determines
+            how your data is combined and inputed in Hash function. Hash function
+            can also be chosen from number of possibilities listed in settings.
+            </p>
+
+            <p>
+            Because hash functions by themselves return only raw bitstream, 
+            there has to be a method, to generate valid ASCII string.
+            We currently only support two methods:
             <ul>
-              <li> content: '[site.url]rnd[uname][pass]' </li>
+              <li> HAX[0:length] </li>
+              <li> Base64[0:length] </li>
+            </ul>
+            In Base64 option, invalid non digit or letter characters are removed. 
+            If Resulting string is too short, we append zeroes. Also, 
+            length can also be determined in settings.
+            </p>
+
+            <b> Example </b>
+
+            <ul>
+              <li> website: got.io </li>
+              <li> username: john.snow </li>
+              <li> password: iknownothing </li>
+              <li> content: '[site.url]|&amp;[uname][pass]' </li>
               <li> function: SHA512 </li>
+              <li> bit2str: Base64 </li>
+              <li> length: 16 </li>
             </ul>
+
+            <p>
+            generated password: <b>'wDJwpKEd3KNM8JZn'</b>
             </p>
 
             <p>
-            For 'got.com', username 'john.snow' and password 'iknownothing': 
-            SHA512( got.comrndjohn.snowiknownothing ) = 
-            'wDJwpKEd3KNM8JZnavV0T21Rwz7a6EL...'
-            </p>
-
-            <p>
-            We currently only support two ways to generate password string 
-            from given bit stream of criptographic function outputs. 
-            These two are:
-            <ul>
-              <li> HAX[0:password_length] </li>
-              <li> 
-                base64[0:password_length], where invalid non digit or letter 
-              </li>
-            </ul>
-            characters are removed. If Resulting string is too short, 
-            we append zeroes.
-            </p>
-
-            <p>
-            Currently supported website data is its url, but more could be 
+            Currently supported website data is only its url, but more could be 
             added in future.
             </p>
           </div>

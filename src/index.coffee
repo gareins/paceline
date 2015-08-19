@@ -238,7 +238,7 @@ button = re_toggleb.ToggleButton
 
 panel = re_panel.Panel
   width: 225
-  height: 400
+  height: 350
   position: button
   contentURL: re_self.data.url('panel.html')
   contentStyleFile: [

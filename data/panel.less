@@ -1,18 +1,21 @@
 // TODO.1: max widths for cordana
 // TODO.2: better dropdown menus
 // TODO.3: stat images height
+// TODO.4: height help
 
 // constants:
 @color-dark:   #19171a;
 @color-middle: #444444;
 @color-light:  #a5a5a5;
 
-@height-wrap: 720px;
-@width-wrap:  480px;
+@height-wrap: 350px;
+@width-wrap:  225px;
 
 @font-small: 2.5vh;
 @font-normal: 2.8vh;
 @font-big: 5.3vh;
+
+@pane-width: 27%;
 
 // mixins:
 .linear-gradient-back(@alpha) {
@@ -41,6 +44,7 @@ html, body {
 #wrapper {
   height: @height-wrap;
   width:  @width-wrap;
+  overflow: hidden;
 }
 
 #content {
@@ -53,7 +57,7 @@ html, body {
 
 .pane-btn {
   transition: opacity 500ms;
-  width: 3%;
+  width: (100-3*@pane-width)/6;
   opacity: 0;
   &:hover {
     opacity: 1;
@@ -71,11 +75,11 @@ html, body {
 }
 
 .pane-content {
-  width: 27%;
+  width: @pane-width;
 }
 
 #help-div {
-  overflow: auto;
+  position: relative;
   height: 100%;
   font-size: @font-small;
 }

@@ -1,37 +1,3 @@
-# click handler for "help" alert link
-$( "#help-alert" ).on "click", () ->
-  alert """
-    Help setting up paceline.
-
-    Use cryptographic functions to generate your password, based on
-    username, website data and your personal password.
-
-    Hash functions use input content and output random looking
-    string. Cipher functions do the same, only you need to also provide
-    encryption key, to use those.
-
-    Choosing content and key can be achieved using your password, username
-    and website data. Example below:
-
-    content: '[site.url]rnd[uname][pass]'
-    function: SHA512
-
-    For 'facebook.com', username 'john.snow' and password 'iknownothing':
-    SHA512(facebook.comrndjohn.snowiknownothing) =
-      'wDJwpKEd3KNM8JZnavV0T21Rwz7a6ELLfv34aHiRkSavVc...'
-
-    We currently only support two ways to generate password string from
-    given bit stream of criptographic function outputs. These two are:
-    - HAX[0:password_length]
-    - base64[0:password_length], where invalid non digit or letter
-      characters are removed. If Resulting string is too short, we
-      append zeroes.
-
-    Currently supported website data is its url, but more could be added
-    in future.
-  """
-
-
 ###################
 #                 #
 # runs on startup #
@@ -44,6 +10,7 @@ preinit = () ->
   root.uname_input     = $("#uname-input")
   root.site_input      = $("#site-input")
   root.content_div     = $("#content")
+  root.wrapper_div     = $("#wrapper")
   root.pass_label      = $("#gen-pass")
   root.content_error_p = $("#content-error-p")
   root.site_input_img  = $('#site-input-img img')
@@ -61,7 +28,7 @@ preinit = () ->
 
   # click handlers
   $('#copy-button')      .on 'click'  , on_copy_click
-  $('.heading-div')      .on 'click'  , on_slide_ud_click
+  $('.pane-btn')         .on 'click'  , on_slide_lr_click
   $('#uname-input')      .on 'keyup'  , generate_send # compute password on any
   $('#site-input')       .on 'keyup'  , generate_send # keyup event for site/uname
   $('textarea')          .on 'keydown', loose_focus_textarea_on_keyup
@@ -90,26 +57,27 @@ preinit = () ->
 #                #
 ##################
 
-update_scrollbar = () ->
-  content_div.perfectScrollbar('update')
-
 # slide divs up-down helper
-slide_up_down = (el, length) ->
-  if el.is(":hidden")
-    el.show()
-    el.animate(
-      {"margin-bottom": "0px", "opacity": 1},
-      length,
-      update_scrollbar
-    )
-  else
-    el.animate(
-      {"margin-bottom": ("-" + el.css "height"), "opacity": 0},
-      length,
-      () ->
-        el.hide()
-        update_scrollbar()
-    )
+slide_lr = (el, length) ->
+  go_right = $(el).hasClass("btn-right")
+  go_left = $(el).hasClass("btn-left")
+  width = wrapper_div.width()
+  margin_now = content_div.css("margin-left")
+
+  margin_now = parseInt(margin_now.substring(0,margin_now.length-2),10)
+
+  # check boundaries
+  if not (go_left or go_right)
+    return
+
+  margin_nxt = margin_now +
+    (if go_right then -width else width)
+
+  content_div.animate(
+    {"margin-left": margin_nxt + "px"},
+    length,
+    null
+  )
 
 # send password info on username/webpage change
 generate_send = () ->
@@ -160,23 +128,12 @@ fill_settings = (settings) ->
 # initialization sequence
 init = (settings) ->
   #init scrollbar
-  content_div.perfectScrollbar {suppressScrollX: true}
+  $("#help-div").perfectScrollbar {suppressScrollX: true}
+  content_div.css("margin-left", -wrapper_div.width())
 
   #fill settings
   fill_settings settings
   pass = settings.password
-
-  #hide divs on startup
-  for h1 in $( "h1" )
-    do(h1) ->
-      h = $(h1)
-
-      # if password not present, show only password div
-      # if password is present, show only generate div
-      if !(pass.length == 0 && h.text() == "Password") &&
-         !(pass.length > 0  && h.text() == "Generate")
-
-        slide_up_down h.parent().parent().next(), 10
 
   # generate password for empty uname/page
   self.port.emit 'generate', "", ""
@@ -194,8 +151,8 @@ init = (settings) ->
 on_copy_click = () ->
   self.port.emit 'copy', $( this ).prev().text()
 
-on_slide_ud_click = () ->
-  slide_up_down $(this).next(), 200
+on_slide_lr_click = () ->
+  slide_lr $(this), 200
 
 on_pass_returned = (pass) ->
   pass_label.text(pass) # fill password box
@@ -253,8 +210,6 @@ on_textarea_change = () ->
   else
     content_error_p.hide()
     on_setting_change "content", txt
-
-  update_scrollbar()
 
 on_status_image_click = () ->
   img = $( this )
